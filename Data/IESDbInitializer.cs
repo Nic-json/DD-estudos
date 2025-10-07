@@ -9,7 +9,7 @@ namespace rebuild.Data
         public static void Initialize(IESContext context)
         {
             context.Database.EnsureCreated();
-            if (context.Departamentos.Any())
+            if (context.Departamento.Any())
             {
                 return;
             }
@@ -20,7 +20,7 @@ namespace rebuild.Data
             };
             foreach (Departamento d in departamentos)
             {
-                context.Departamentos.Add(d);
+                context.Departamento.Add(d);
             }
             context.SaveChanges();
         }

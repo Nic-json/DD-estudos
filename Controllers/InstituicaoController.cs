@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 
-namespace Capitulo01v2.Controllers
+namespace rebuild.Controllers
 {
     public class InstituicaoController : Controller
     {

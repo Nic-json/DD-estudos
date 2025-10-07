@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using rebuild.Data;
 using rebuild.Models;
-using System;
+using Microsoft.Extensions.Logging;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -12,6 +13,24 @@ builder.Services.AddDbContext<IESContext>(options => options.UseSqlServer(builde
 // ou: AddDbContextPool<AppDbContext>(...) para pooling
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<IESContext>();
+        // aplica migrações (ou use EnsureCreated se preferir)
+        context.Database.Migrate();
+        // popula dados iniciais (seu inicializador)
+        IESDbInitializer.Initialize(context);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Erro ao criar/popular a base de dados.");
+    }
+}
 
 app.MapGet("/Departamento", async (IESContext db) => await db.Departamento.ToListAsync());
 app.MapPost("/Departamento", async (IESContext db, Departamento p) =>
@@ -39,5 +58,11 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<IESContext>();
+    db.Database.Migrate(); // cria/atualiza as tabelas no startup
+}
 
 app.Run();
