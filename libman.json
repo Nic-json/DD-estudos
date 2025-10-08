@@ -26,6 +26,11 @@
       "provider": "cdnjs",
       "library": "popper.js@2.11.8",
       "destination": "wwwroot/lib/popper.js/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "datatables@1.10.21",
+      "destination": "wwwroot/lib/datatables/"
     }
   ]
 }
