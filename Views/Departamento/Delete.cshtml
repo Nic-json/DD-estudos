@@ -9,7 +9,7 @@
     </environment>
     <environment exclude="Development">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/font-awesome.min.css"
-              asp-fallback-href="~/lib/font-awesome/css/all.css"-property="position" asp-fallback-test-value="absolute" />
+              asp-fallback-href="~/lib/font-awesome/css/all.css" asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
     </environment>
 }
 <div class="card-block">
@@ -61,7 +61,7 @@
         </button>
     </div>
 </div>
-<div class="modal	fade" id="modalConfirmationDelete" tabindex="-1"
+<div class="modal fade" id="modalConfirmationDelete" tabindex="-1"
      role="dialog" aria-labelledby="deleteModal" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -78,7 +78,7 @@
                     Confirma	a	exclusão	do	departamento	@Model.Nome.ToUpper()	??
                 </p>
             </div>
-            <div class="modal-footer">
+            <div class="modal- footer">
                 <form asp-action="Delete">
                     <input type="hidden" asp-for="DepartamentoID" />
                     <input type="submit" value="Remover	Departamento" class="btn	btn-primary" />

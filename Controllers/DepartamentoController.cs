@@ -21,7 +21,7 @@ namespace rebuild.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Departamento.Include(i=>i.Instituicao).OrderBy(c => c.Nome).ToListAsync());
+            return View(await _context.Departamento.Include(i => i.Instituicao).OrderBy(c => c.Nome).ToListAsync());
 
         }
 
@@ -54,7 +54,7 @@ namespace rebuild.Controllers
             {
                 ModelState.AddModelError("", "Não	foi	possível	inserir	os  dados.");
 
-                }
+            }
             return View(Departamento);
         }
 
@@ -76,7 +76,7 @@ namespace rebuild.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long? id, [Bind("DepartamentoID,Nome,InstituicaoID")]	Departamento	Departamento)
+        public async Task<IActionResult> Edit(long? id, [Bind("DepartamentoID,Nome,InstituicaoID")] Departamento Departamento)
         {
             if (id != Departamento.DepartamentoID)
             {
@@ -138,20 +138,17 @@ namespace rebuild.Controllers
             return View(Departamento);
         }
 
+        //	POST:	Departamento/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long? id)
         {
-            var Departamento = await _context.Departamento.SingleOrDefaultAsync(m => m.DepartamentoID == id);
-            _context.Departamento.Remove(Departamento);
-            TempData["Message"] = "Departamento" + Departamento.Nome.ToUpper() + "	foi	removido";
+            var departamento = await _context.Departamento.SingleOrDefaultAsync(m => m.DepartamentoID == id);
+            _context.Departamento.Remove(departamento);
+            TempData["Message"] = "Departamento	" + departamento.Nome.ToUpper() + "	foi	removido";
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-
-
-
-
     }
 }
 

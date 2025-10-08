@@ -15,23 +15,23 @@ namespace rebuild.Data
             {
                 return;
             }
-            var instituicao = new Instituicao[]
+            var Instituicao = new Instituicao[]
 {
                 new Instituicao {   Nome="UniParaná", Endereco="Paraná"},
                 new Instituicao {   Nome="UniAcre", Endereco="Acre"}
 };
-            foreach (Instituicao i in instituicao)
+            foreach (Instituicao i in Instituicao)
             {
                 context.Instituicao.Add(i);
             }
             context.SaveChanges();
 
-            var departamento = new Departamento[]
+            var Departamento = new Departamento[]
 {
-                new Departamento    {   Nome="Ciência	da	Computação", InstituicaoID=1 },
+                new Departamento    {   Nome="Ciência	da	Computação", InstituicaoID=1},
                 new Departamento    {   Nome="Ciência	de	Alimentos", InstituicaoID=2}
 };
-            foreach (Departamento d in departamento)
+            foreach (Departamento d in Departamento)
             {
                 context.Departamento.Add(d);
             }
