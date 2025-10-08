@@ -1,60 +1,40 @@
 ﻿@model rebuild.Models.Instituicao
-
 @{
-    Layout = null;
+    ViewData["Title"] = "Create";
+    Layout = "_LayoutIES";
 }
-
-@{
-    Layout = null;
-}
-
-<!DOCTYPE html>
-
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Create</title>
-</head>
-<body>
-
-    <h4>Instituicao</h4>
-    <hr />
-    <div class="row">
-        <div class="col-md-4">
-            <form asp-action="Create">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-                <div class="form-group">
-                    <label asp-for="Nome" class="col-md-2 control-label"></label>
-                    <div class="col-md-10">
-                        <input asp-for="Nome" class="form-control" />
-                        <span asp-validation-for="Nome" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label asp-for="Endereco" class="col-md-2 control-label"></label>
-                    <div class="col-md-10">
-                        <input asp-for="Endereco" class="form-control" />
-                        <span asp-validation-for="Endereco" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-md-offset-2 col-md-10">
-                        <input type="submit" value="Create" class="btn btn-primary" />
-                    </div>
-                </div>
-            </form>
-        </div>
+<div class="card-block">
+    <div class="card-header	text-white	bg-danger	text-center	h1">Registrando	uma	nova	instituição</div>
+    <div class="card-body">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Nome" class="control-label"></label>
+                <input asp-for="Nome" class="form-control" />
+                <span asp-validation-for="Nome" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Endereco" class="control-label"></label>
+                <input asp-for="Endereco" class="form-control" />
+                <span asp-validation-for="Endereco" class="texanger"></span>
+            </div>
+            <div class="form-group	text-center	h3">
+                <input type="submit" value="Registrar	Instituição"
+                       class="btn	btn-light" />
+                <a asp-action="Index" class="btn	btn-info">
+                    Retorn
+                    ar	à	listagem	de	instituições
+                </a>
+            </div>
+        </form>
     </div>
-
-    <div>
-        <a asp-action="Index">Retorno à listagem</a>
+    <div class="card-footer	bg-dark	text-center	text-white">
+        Informe	os	dados	acima	e/ou	clique	em	um	dos	botões	de	aç
+        ão
     </div>
-
-    @section Scripts {
-        @{
-            await Html.RenderPartialAsync("_ValidationScriptsPartial");
-        }
+</div>
+@section ScriptPage {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-</body>
-</html>
+}

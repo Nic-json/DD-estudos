@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using rebuild.Data;
 using rebuild.Migrations;
@@ -9,8 +10,10 @@ using System.Threading.Tasks;
 
 namespace rebuild.Controllers
 {
+
     public class DepartamentoController : Controller
     {
+
         private readonly IESContext _context;
         public DepartamentoController(IESContext context)
         {
@@ -18,23 +21,31 @@ namespace rebuild.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Departamento.OrderBy(c => c.Nome).ToListAsync());
+            return View(await _context.Departamento.Include(i=>i.Instituicao).OrderBy(c => c.Nome).ToListAsync());
+
         }
 
         public IActionResult Create()
         {
+            var Instituicao = _context.Instituicao.OrderBy(i => i.Nome).ToList();
+            Instituicao.Insert(0, new Instituicao()
+            {
+                InstituicaoID = 0,
+                Nome = "Selecione	a	instituição"
+            });
+            ViewBag.Instituicao = Instituicao;
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Nome")] Departamento departamento)
+        public async Task<IActionResult> Create([Bind("Nome, InstituicaoID")] Departamento Departamento)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    _context.Add(departamento);
+                    _context.Add(Departamento);
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
                 }
@@ -44,7 +55,7 @@ namespace rebuild.Controllers
                 ModelState.AddModelError("", "Não	foi	possível	inserir	os  dados.");
 
                 }
-            return View(departamento);
+            return View(Departamento);
         }
 
         public async Task<IActionResult> Edit(long? id)
@@ -53,19 +64,21 @@ namespace rebuild.Controllers
             {
                 return NotFound();
             }
-            var departamento = await _context.Departamento.SingleOrDefaultAsync(m => m.DepartamentoID == id);
-            if (departamento == null)
+            var Departamento = await _context.Departamento.SingleOrDefaultAsync(m => m.DepartamentoID == id);
+            if (Departamento == null)
             {
                 return NotFound();
             }
-            return View(departamento);
+            ViewBag.Instituicao = new SelectList(_context.Instituicao.OrderBy(b => b.Nome), "InstituicaoID", "Nome", Departamento.InstituicaoID);
+
+            return View(Departamento);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long? id, [Bind("DepartamentoID,Nome")]	Departamento	departamento)
+        public async Task<IActionResult> Edit(long? id, [Bind("DepartamentoID,Nome,InstituicaoID")]	Departamento	Departamento)
         {
-            if (id != departamento.DepartamentoID)
+            if (id != Departamento.DepartamentoID)
             {
                 return NotFound();
             }
@@ -73,12 +86,12 @@ namespace rebuild.Controllers
             {
                 try
                 {
-                    _context.Update(departamento);
+                    _context.Update(Departamento);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!DepartamentoExists(departamento.DepartamentoID))
+                    if (!DepartamentoExists(Departamento.DepartamentoID))
                     {
                         return NotFound();
                     }
@@ -89,7 +102,7 @@ namespace rebuild.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(departamento);
+            return View(Departamento);
         }
         private bool DepartamentoExists(long? id)
         {
@@ -102,12 +115,13 @@ namespace rebuild.Controllers
             {
                 return NotFound();
             }
-            var departamento = await _context.Departamento.SingleOrDefaultAsync(m => m.DepartamentoID == id);
-            if (departamento == null)
+            var Departamento = await _context.Departamento.SingleOrDefaultAsync(m => m.DepartamentoID == id);
+            _context.Instituicao.Where(i => Departamento.InstituicaoID == i.InstituicaoID).Load();
+            if (Departamento == null)
             {
                 return NotFound();
             }
-            return View(departamento);
+            return View(Departamento);
         }
         public async Task<IActionResult> Delete(long? id)
         {
@@ -115,20 +129,22 @@ namespace rebuild.Controllers
             {
                 return NotFound();
             }
-            var departamento = await _context.Departamento.SingleOrDefaultAsync(m => m.DepartamentoID == id);
-            if (departamento == null)
+            var Departamento = await _context.Departamento.SingleOrDefaultAsync(m => m.DepartamentoID == id);
+            _context.Instituicao.Where(i => Departamento.InstituicaoID == i.InstituicaoID).Load();
+            if (Departamento == null)
             {
                 return NotFound();
             }
-            return View(departamento);
+            return View(Departamento);
         }
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long? id)
         {
-            var departamento = await _context.Departamento.SingleOrDefaultAsync(m => m.DepartamentoID == id);
-            _context.Departamento.Remove(departamento);
+            var Departamento = await _context.Departamento.SingleOrDefaultAsync(m => m.DepartamentoID == id);
+            _context.Departamento.Remove(Departamento);
+            TempData["Message"] = "Departamento" + Departamento.Nome.ToUpper() + "	foi	removido";
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }

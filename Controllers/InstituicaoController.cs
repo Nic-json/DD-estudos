@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using rebuild.Data;
 using rebuild.Models;
-using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 
 namespace rebuild.Controllers
@@ -125,9 +126,10 @@ namespace rebuild.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long? id)
         {
-            var instituicao = await _context.Instituicao.SingleOrDefaultAsync(m => m.InstituicaoID == id);
-            _context.Instituicao.Remove(instituicao);
+            var Instituicao = await _context.Instituicao.SingleOrDefaultAsync(m => m.InstituicaoID == id);
+            _context.Instituicao.Remove(Instituicao);
             await _context.SaveChangesAsync();
+            TempData["Message"] = "Instituição	" + Instituicao.Nome.ToUpper() + "	foi	removida";
             return RedirectToAction(nameof(Index));
         }
     }
