@@ -1,40 +1,39 @@
 using Microsoft.EntityFrameworkCore;
 using rebuild.Data;
-using rebuild.Models;
-using Microsoft.Extensions.Logging;
+using rebuild.Data.DAL.Cadastros; // <-- precisa desse using para a sua DAL
+// REMOVA isto (está errado):
+// using rebuild.Data.DAL.Cadastros.rebuild.Data.DAL.Cadastros;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// MVC
 builder.Services.AddControllersWithViews();
 
-// 1) Registrar o DbContext
-builder.Services.AddDbContext<IESContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("keyum")));
-// ou: AddDbContextPool<AppDbContext>(...) para pooling
+// DbContext (sempre registrar antes de serviços que o usam)
+builder.Services.AddDbContext<IESContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("keyum")));
+
+// >>> AQUI: registre sua DAL (lifetime Scoped)
+builder.Services.AddScoped<InstituicaoDAL>();
 
 var app = builder.Build();
 
+// Seed (opcional) — pode ficar logo após o Build()
 using (var scope = app.Services.CreateScope())
 {
-    var sp = scope.ServiceProvider;
-    var db = sp.GetRequiredService<IESContext>();
-
-    IESDbInitializer.Initialize(db);    // manter se fizer Any() para evitar duplicatas
+    var db = scope.ServiceProvider.GetRequiredService<IESContext>();
+    IESDbInitializer.Initialize(db);
 }
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
 app.UseAuthorization();
 
 app.MapControllerRoute(

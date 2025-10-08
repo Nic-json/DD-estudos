@@ -1,4 +1,4 @@
-namespace rebuild.Models
+﻿namespace rebuild.Models
 {
     public class ErrorViewModel
     {
