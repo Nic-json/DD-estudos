@@ -11,9 +11,10 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 
-namespace rebuild.Controllers
+namespace rebuild.Areas.Cadastros.Controllers
 {
-		public class DepartamentoController : Controller
+    [Area("Cadastros")]
+    public class DepartamentoController : Controller
     {
         private readonly IESContext _context;
         private readonly DepartamentoDAL departamentoDAL;
