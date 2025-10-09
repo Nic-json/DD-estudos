@@ -2,6 +2,8 @@
 using Microsoft.Extensions.Options;
 using Modelo.Cadastros;
 using Modelo.Discente;
+using rebuild.Models.Infra;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 
 namespace rebuild.Data

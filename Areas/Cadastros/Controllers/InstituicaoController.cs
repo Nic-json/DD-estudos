@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Modelo.Cadastros;
 using rebuild.Data.DAL.Cadastros;
 using System.Threading.Tasks;
 
 [Area("Cadastros")]
+[Authorize]
+
 public class InstituicaoController : Controller
 {
     private readonly InstituicaoDAL _dal;

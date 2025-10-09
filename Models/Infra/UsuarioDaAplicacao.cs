@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-namespace Capitulo05.Models.Infra
+namespace rebuild.Models.Infra
 {
     public class UsuarioDaAplicacao : IdentityUser
     {
