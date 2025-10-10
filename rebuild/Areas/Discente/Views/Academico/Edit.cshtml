@@ -1,52 +1,71 @@
 ﻿@model Modelo.Discente.Academico
 @{
-    Layout = "_LayoutIES";
+    ViewData["Title"] = "Editar Acadêmico";
 }
-<div class="card-block">
-    <div class="card-header	text-white	bg-secondary	text-center	h1">
-        Alterando	um	acadêmico	existente
+
+<form asp-area="Discente"
+      asp-controller="Academico"
+      asp-action="Edit"
+      method="post"
+      enctype="multipart/form-data">
+
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="AcademicoID" />
+
+    <div class="mb-3">
+        <label asp-for="RegistroAcademico" class="form-label"></label>
+        <input asp-for="RegistroAcademico" class="form-control" />
+        <span asp-validation-for="RegistroAcademico" class="text-danger"></span>
     </div>
-    <div class="card-body">
-        <form enctype="multipart/form-data" asp-action="Edit">
-            <input type="hidden" asp-for="AcademicoID" />
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="RegistroAcademico" class="control-label"></label>
-                <input asp-for="RegistroAcademico" class="form-control" />
-                <span asp-validation-for="RegistroAcademico" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Nome" class="control-label"></label>
-                <input asp-for="Nome" class="form-control" />
-                <span asp-validation-for="Nome" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Nascimento" class="control-label">
-                </label>
-                <input asp-for="Nascimento" class="form-control" />
-                <span asp-validation-for="Nascimento" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label class="control-label">Foto</label>
-                <input type="file" name="foto" class="form-control" />
-            </div>
-            <div class="form-group	text-center	h3">
-                <input type="submit" value="Atualizar	Acadêmico"
-                       class="btn	btn-primary" />
-                <a asp-action="Index" class="btn	btn-warning">
-                    Ret
-                    ornar	à	listagem	de	acadêmicos
+
+    <div class="mb-3">
+        <label asp-for="Nome" class="form-label"></label>
+        <input asp-for="Nome" class="form-control" />
+        <span asp-validation-for="Nome" class="text-danger"></span>
+    </div>
+
+    <!-- Foto atual -->
+    <div class="mb-3">
+        <label class="form-label d-block">Foto atual</label>
+
+        @if (Model.Foto is not null)
+        {
+            <img class="img-thumbnail mb-2"
+                 style="max-height:160px;object-fit:cover"
+                 src="@Url.Action("Foto", "Academico", new { area = "Discente", id = Model.AcademicoID })" />
+
+            <div>
+                <a class="btn btn-sm btn-outline-secondary"
+                   asp-area="Discente" asp-controller="Academico"
+                   asp-action="DownloadFoto" asp-route-id="@Model.AcademicoID">
+                    Download
                 </a>
             </div>
-        </form>
 
+            <!-- Checkbox para remover a foto -->
+            <div class="form-check mt-2">
+                <input class="form-check-input" type="checkbox"
+                       id="chkRemoverFoto" name="chkRemoverFoto" value="Sim" />
+                <label class="form-check-label" for="chkRemoverFoto">
+                    Remover Foto
+                </label>
+            </div>
+        }
+        else
+        {
+            <div class="text-muted">Sem foto cadastrada.</div>
+        }
     </div>
-    <div class="card-footer	bg-info	text-center	text-white">
-        Informe	os	dados	acima	e/ou	clique	em	um	dos	botões	de	ação
+
+    <!-- Upload de nova foto -->
+    <div class="mb-3">
+        <label class="form-label">Enviar nova foto</label>
+        <input type="file" name="foto" class="form-control" accept=".jpg,.jpeg,.png,.gif" />
+        <span class="text-danger">@Html.ValidationMessage("foto")</span>
+        <div class="form-text">JPG, PNG ou GIF (máx. 2MB).</div>
     </div>
-</div>
-@section ScriptPage {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
+
+    <button class="btn btn-primary">Salvar</button>
+    <a class="btn btn-secondary"
+       asp-area="Discente" asp-controller="Academico" asp-action="Index">Voltar</a>
+</form>

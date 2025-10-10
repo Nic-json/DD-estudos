@@ -6,6 +6,11 @@ using rebuild.Data;
 using rebuild.Data.DAL.Discente;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.AspNetCore.Hosting;
 
 
 namespace rebuild.Areas.Discente.Controllers
@@ -15,10 +20,13 @@ namespace rebuild.Areas.Discente.Controllers
     {
         private readonly IESContext _context;
         private readonly AcademicoDAL academicoDAL;
-        public AcademicoController(IESContext context)
+        private IWebHostEnvironment _env;
+
+        public AcademicoController(IESContext context, IWebHostEnvironment env)
         {
             _context = context;
             academicoDAL = new AcademicoDAL(context);
+            _env = env; 
         }
         public async Task<IActionResult> Index()
         {
@@ -77,7 +85,7 @@ namespace rebuild.Areas.Discente.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long? id, [Bind("AcademicoID,Nome,RegistroAcademico,Nascimento")]	Academico academico,	IForm File    foto)
+        public async Task<IActionResult> Edit(long? id, [Bind("AcademicoID,Nome,RegistroAcademico,Nascimento")]	Academico academico,	IFormFile    foto, string? chkRemoverFoto)
         {
             if (id != academico.AcademicoID)
             {
@@ -88,10 +96,17 @@ namespace rebuild.Areas.Discente.Controllers
                 try
                 {
                     var stream = new MemoryStream();
-                                await   foto.CopyToAsync(stream);
+                    if (chkRemoverFoto != null)
+                    {
+                        academico.Foto = null;
+                    }
+                    else { 
+                    await foto.CopyToAsync(stream);
                     academico.Foto = stream.ToArray();
                     academico.FotoMimeType = foto.ContentType;
-                    await academicoDAL.GravarAcademico(academico);
+                    }
+                    await academicoDAL.GravarAcademicoAsync(academico);
+                
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -122,5 +137,55 @@ namespace rebuild.Areas.Discente.Controllers
         {
             return await academicoDAL.ObterAcademicoPorIdAsync((long)id) != null;
         }
+        [HttpGet]
+        public async Task<IActionResult> Foto(long id)
+        {
+            // chame o SEU método correto do DAL/Contexto
+            var academico = await academicoDAL.ObterAcademicoPorIdAsync(id);
+            // ou, se usa DbContext direto:
+            // var academico = await _ctx.Academicos
+            //     .AsNoTracking()
+            //     .Select(a => new { a.Foto, a.FotoMimeType })
+            //     .FirstOrDefaultAsync(a => a.AcademicoID == id);
+
+            if (academico is null)
+                return NotFound();
+
+            if (academico.Foto is null || string.IsNullOrEmpty(academico.FotoMimeType))
+                return NotFound(); // ou retorne uma imagem padrão
+
+            return File(academico.Foto, academico.FotoMimeType); // FileContentResult
+        }
+        [HttpGet]
+        public async Task<IActionResult> DownloadFoto(long id)
+        {
+            var a = await academicoDAL.ObterAcademicoPorIdAsync(id);
+            if (a is null) return NotFound();
+            if (a.Foto is null || string.IsNullOrEmpty(a.FotoMimeType)) return NotFound();
+
+            var ext = a.FotoMimeType switch
+            {
+                "image/jpeg" => "jpg",
+                "image/png" => "png",
+                "image/gif" => "gif",
+                _ => "bin"
+            };
+
+            var fileName = $"Foto_{id}.{ext}";
+            var folderPath = Path.Combine(_env.WebRootPath, "downloads");
+            Directory.CreateDirectory(folderPath); // idempotente
+            var fullPath = Path.Combine(folderPath, fileName);
+
+            // grava o arquivo físico
+            await System.IO.File.WriteAllBytesAsync(fullPath, a.Foto);
+
+            // serve via provider
+            IFileProvider provider = new PhysicalFileProvider(folderPath);
+            IFileInfo fileInfo = provider.GetFileInfo(fileName);
+            using var readStream = fileInfo.CreateReadStream(); // stream é descartado ao final da resposta
+
+            return File(readStream, a.FotoMimeType, fileName);
+        }
     }
 }
+
