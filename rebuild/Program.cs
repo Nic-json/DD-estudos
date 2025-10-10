@@ -16,7 +16,7 @@ builder.Services.AddRazorPages();
 
 // DbContext (sempre registrar antes de serviços que o usam)
 builder.Services.AddDbContext<IESContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("keyum")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("keyum"),b => b.MigrationsAssembly("rebuild")));
 
 // >>> AQUI: registre sua DAL (lifetime Scoped)
 builder.Services.AddScoped<InstituicaoDAL>();
