@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace rebuild.Areas.Discente.Controllers
 {
-    [Area("Cadastros")]
+    [Area("Discente")]
     public class AcademicoController : Controller
     {
         private readonly IESContext _context;
