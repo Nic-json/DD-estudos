@@ -4,9 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Modelo.Discente;
 using rebuild.Data;
 using rebuild.Data.DAL.Discente;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Modelo.Discente;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 
@@ -79,7 +77,7 @@ namespace rebuild.Areas.Discente.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long? id, [Bind("AcademicoID,Nome,RegistroAcademico,Nascimento")]	Academico	academico)
+        public async Task<IActionResult> Edit(long? id, [Bind("AcademicoID,Nome,RegistroAcademico,Nascimento")]	Academico academico,	IForm File    foto)
         {
             if (id != academico.AcademicoID)
             {
@@ -89,8 +87,11 @@ namespace rebuild.Areas.Discente.Controllers
             {
                 try
                 {
-                    await academicoDAL.GravarAcademicoAsync(academico)
-;
+                    var stream = new MemoryStream();
+                                await   foto.CopyToAsync(stream);
+                    academico.Foto = stream.ToArray();
+                    academico.FotoMimeType = foto.ContentType;
+                    await academicoDAL.GravarAcademico(academico);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -107,6 +108,7 @@ namespace rebuild.Areas.Discente.Controllers
             }
             return View(academico);
         }
+
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long? id
