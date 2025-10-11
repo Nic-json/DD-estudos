@@ -24,9 +24,21 @@ namespace rebuild.Controllers
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        public IActionResult Error(int? statusCode = null)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            if (statusCode.HasValue)
+            {
+                if (statusCode == 404 || statusCode == 500)
+                {
+                    var viewName = $"Erro{statusCode.ToString()}";
+                    return View(viewName);
+                }
+            }
+            return View(new ErrorViewModel
+            {
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+            });
         }
+
     }
 }

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using rebuild.Data;
@@ -51,9 +52,16 @@ using (var scope = app.Services.CreateScope())
     IESDbInitializer.Initialize(db);
 }
 
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    // Mostra stack trace detalhada e páginas de migração
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+    // Redireciona exceções não tratadas para uma rota amigável
+    app.UseExceptionHandler("/Erro/Aplicacao");
+    // Reforça HTTPS em produção
     app.UseHsts();
 }
 
@@ -61,6 +69,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthorization();
+app.UseStatusCodePagesWithReExecute("/Home/Error/", "?statusCode ={ 0}");
 
 app.MapControllerRoute(
     name: "areaRoute",
