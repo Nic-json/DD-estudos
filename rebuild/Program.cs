@@ -5,47 +5,46 @@ using rebuild.Data;
 using rebuild.Data.DAL.Cadastros;
 using rebuild.Models.Infra;
 
-// <-- precisa desse using para a sua DAL
-// REMOVA isto (está errado):
-// using rebuild.Data.DAL.Cadastros.rebuild.Data.DAL.Cadastros;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // MVC
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
-// DbContext (sempre registrar antes de serviços que o usam)
+// DbContext
 builder.Services.AddDbContext<IESContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("keyum"),b => b.MigrationsAssembly("rebuild")));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("keyum"),
+        b => b.MigrationsAssembly("rebuild")));
 
-// >>> AQUI: registre sua DAL (lifetime Scoped)
+// DAL
 builder.Services.AddScoped<InstituicaoDAL>();
 
+// >>> SESSION: serviços
+builder.Services.AddDistributedMemoryCache(); // provedor em memória
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(20); // tempo de ociosidade
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;              // essencial p/ GDPR
+});
+
+// Identity
 builder.Services
-    .AddIdentity<UsuarioDaAplicacao, IdentityRole>(options =>
-    {
-        // opcional: políticas de senha/lockout/etc
-        // options.Password.RequiredLength = 6;
-        // options.SignIn.RequireConfirmedAccount = false;
-    })
+    .AddIdentity<UsuarioDaAplicacao, IdentityRole>()
     .AddEntityFrameworkStores<IESContext>()
     .AddDefaultTokenProviders();
-// .AddDefaultUI(); // descomente se estiver usando a UI padrão do Identity
 
-// Cookie de autenticação (Login/AccessDenied personalizados)
+// Cookie de autenticação
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Infra/Acessar";
     options.AccessDeniedPath = "/Infra/AcessoNegado";
-    // opcional:
-    // options.SlidingExpiration = true;
-    // options.ExpireTimeSpan = TimeSpan.FromHours(8);
 });
 
 var app = builder.Build();
 
-// Seed (opcional) — pode ficar logo após o Build()
+// Seed (opcional)
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<IESContext>();
@@ -54,22 +53,26 @@ using (var scope = app.Services.CreateScope())
 
 if (app.Environment.IsDevelopment())
 {
-    // Mostra stack trace detalhada e páginas de migração
     app.UseDeveloperExceptionPage();
 }
 else
 {
-    // Redireciona exceções não tratadas para uma rota amigável
     app.UseExceptionHandler("/Erro/Aplicacao");
-    // Reforça HTTPS em produção
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
 app.UseRouting();
+
+// >>> SESSION: middleware (antes dos endpoints)
+app.UseSession();
+
+app.UseAuthentication();
 app.UseAuthorization();
-app.UseStatusCodePagesWithReExecute("/Home/Error/", "?statusCode ={ 0}");
+
+app.UseStatusCodePagesWithReExecute("/Home/Error/", "?statusCode={0}");
 
 app.MapControllerRoute(
     name: "areaRoute",

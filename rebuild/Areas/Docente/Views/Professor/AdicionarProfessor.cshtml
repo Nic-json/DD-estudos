@@ -1,0 +1,163 @@
+﻿@model rebuild.Areas.Docente.Models.AdicionarProfessorViewModel
+@{
+    Layout = "_LayoutIES";
+}
+
+<div class="card-block">
+    <div class="card-header text-white bg-danger text-center h1">
+        Registrando um professor em um curso
+    </div>
+
+    <div class="card-body">
+        <form asp-area="Docente"
+              asp-controller="Professor"
+              asp-action="AdicionarProfessor"
+              method="post"
+              autocomplete="off">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <!-- Instituição -->
+            <div class="form-group">
+                <label asp-for="InstituicaoID" class="control-label"></label>
+                <select asp-for="InstituicaoID"
+                        class="form-control"
+                        asp-items="@(new SelectList(ViewBag.Instituicoes, "InstituicaoID", "Nome"))"
+                        id="InstituicaoID">
+                    <option value="">Selecione a Instituição</option>
+                </select>
+                <span asp-validation-for="InstituicaoID" class="text-danger"></span>
+            </div>
+
+            <!-- Departamento -->
+            <div class="form-group">
+                <label asp-for="DepartamentoID" class="control-label"></label>
+                <select asp-for="DepartamentoID"
+                        class="form-control"
+                        asp-items="@(new SelectList(ViewBag.Departamentos, "DepartamentoID", "Nome"))"
+                        id="DepartamentoID"
+                        data-url="@Url.Action("ObterDepartamentosPorInstituicao", "Professor", new { area = "Docente" })">
+                    <option value="">Selecione o Departamento</option>
+                </select>
+                <span asp-validation-for="DepartamentoID" class="text-danger"></span>
+            </div>
+
+            <!-- Curso -->
+            <div class="form-group">
+                <label asp-for="CursoID" class="control-label"></label>
+                <select asp-for="CursoID"
+                        class="form-control"
+                        asp-items="@(new SelectList(ViewBag.Cursos, "CursoID", "Nome"))"
+                        id="CursoID"
+                        data-url="@Url.Action("ObterCursosPorDepartamento", "Professor", new { area = "Docente" })">
+                    <option value="">Selecione o Curso</option>
+                </select>
+                <span asp-validation-for="CursoID" class="text-danger"></span>
+            </div>
+
+            <!-- Professor -->
+            <div class="form-group">
+                <label asp-for="ProfessorID" class="control-label"></label>
+                <select asp-for="ProfessorID"
+                        class="form-control"
+                        asp-items="@(new SelectList(ViewBag.Professores, "ProfessorID", "Nome"))"
+                        id="ProfessorID"
+                        data-url="@Url.Action("ObterProfessoresForaDoCurso", "Professor", new { area = "Docente" })">
+                    <option value="">Selecione o Professor</option>
+                </select>
+                <span asp-validation-for="ProfessorID" class="text-danger"></span>
+            </div>
+
+            <div class="form-group text-center h3">
+                <button type="submit" class="btn btn-light">Registrar Professor</button>
+                <a asp-area="Docente"
+                   asp-controller="Professor"
+                   asp-action="VerificarUltimosRegistros"
+                   class="btn btn-info">
+                    Verificar últimos registros
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-footer bg-dark text-center text-white">
+        Informe os dados acima e/ou clique em um dos botões de ação
+    </div>
+</div>
+
+@section ScriptPage {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script type="text/javascript">
+        // Utilitário: limpa e repopula um <select>
+        function fillSelect($select, items, placeholderText) {
+            $select.empty();
+            $select.append(`<option value="">${placeholderText}</option>`);
+            if (Array.isArray(items)) {
+                for (let i = 0; i < items.length; i++) {
+                    $select.append(`<option value="${items[i].value}">${items[i].text}</option>`);
+                }
+            }
+        }
+
+        // Carrega dados para um select filho via JSON
+        function loadChildOptions(sourceValue, $target, url, placeholderText) {
+            if (!sourceValue) {
+                fillSelect($target, [], placeholderText);
+                return;
+            }
+            $.getJSON(url, { actionID: sourceValue })
+                .done(function (data) {
+                    fillSelect($target, data, placeholderText);
+                })
+                .fail(function () {
+                    alert('Erro obtendo dados. Tente novamente.');
+                });
+                        function	GetDadosParaDropDownList(valorBuscar,	controleAtualizar, nomeDado) {
+                        var	optionControleAtualizar	=	controleAtualizar	+	'	option';
+                        var	url	=	$(controleAtualizar).data('url');bidos) {
+                                        $(optionControleAtualizar).remove();
+                                        $(controleAtualizar).append('<option	value="0">Selecioneo	'	+	nomeDado	+	'</option');
+                                        for	(i	=	0;	i	<	dadosRecebidos.length;	i++)	{
+                        $(controleAtualizar).append('<option	value="'	+	dadosRecebidos[i].value	+	'">'	+	dadosRecebidos[i].text	+	'</option');}
+                        }).fail(function	(jqXHR,	textStatus,	errorThrown) {
+                                        debugger;
+                                        alert('Erro	de	conexão',	'Erro	obtendo	dados');
+                        });
+        }
+
+        }
+
+        // Encadeamentos
+        $(document).on("change", "#InstituicaoID", function () {
+            const instituicaoID = $(this).val();
+            const $dep = $("#DepartamentoID");
+            const url = $dep.data("url");
+            loadChildOptions(instituicaoID, $dep, url, "Selecione o Departamento");
+
+            // ao trocar a instituição, zere curso e professor também
+            fillSelect($("#CursoID"), [], "Selecione o Curso");
+            fillSelect($("#ProfessorID"), [], "Selecione o Professor");
+        });
+
+        $(document).on("change", "#DepartamentoID", function () {
+            const departamentoID = $(this).val();
+            const $curso = $("#CursoID");
+            const url = $curso.data("url");
+            loadChildOptions(departamentoID, $curso, url, "Selecione o Curso");
+
+            // zera professor
+            fillSelect($("#ProfessorID"), [], "Selecione o Professor");
+        });
+
+        $(document).on("change", "#CursoID", function () {
+            const cursoID = $(this).val();
+            const $prof = $("#ProfessorID");
+            const url = $prof.data("url");
+            loadChildOptions(cursoID, $prof, url, "Selecione o Professor");
+        });
+    </script>
+}
