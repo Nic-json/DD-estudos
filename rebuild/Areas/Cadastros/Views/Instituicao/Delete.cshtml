@@ -19,18 +19,23 @@
     </div>
     <div class="card-body">
         @{
-            await Html.RenderPartialAsync("~/Views/Instituicao/_PartialDetailsContentCard.cshtml", Model);
+            await Html.RenderPartialAsync("_PartialDetailsContentCard.cshtml", Model);
         }
     </div>
     <div class="card-footer	bg-info	text-center	text-white">
-        <form asp-action="Delete" asp-route-id="@Model.InstituicaoID" method="post">
-            <input type="hidden" asp-for="InstituicaoID" />
-            <input type="submit" value="Remover	Instituição" class="btn	btn-light" />
+        <form asp-area="Cadastros" asp-controller="Instituicao" asp-action="Delete" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@Model.InstituicaoID" />
+            <button class="btn btn-danger">Excluir  Instituicao</button>
             <a asp-action="Index" class="btn	btn-info">
                 Retornar	à
                 listagem	de	instituições
             </a>
         </form>
+        @if (TempData["Message"] is string msg)
+        {
+            <div class="alert alert-warning">@msg</div>
+        }
     </div>
 </div>
 @section ScriptPage {

@@ -84,10 +84,8 @@ namespace rebuild.Data.DAL.Cadastros
             }
             catch (DbUpdateException)
             {
-                // Provável violação de FK (departamentos vinculados).
-                // Deixe propagar se quiser tratar no Controller, ou retorne false:
-                // return false;
-                throw;
+               return false;
+
             }
         }
     }

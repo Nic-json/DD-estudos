@@ -54,30 +54,33 @@ public class InstituicaoController : Controller
         TempData["Message"] = "Instituição atualizada.";
         return RedirectToAction(nameof(Index));
     }
-    public async Task<IActionResult> Delete(long id)
+    [HttpGet]
+    public async Task<IActionResult> Delete(long? id, CancellationToken ct)
     {
-        var inst = await _dal.ObterPorIdAsync(id, incluirDepartamentos: true);
-        if (inst is null) return NotFound();
-        return View(inst);
+        if (id is null) return NotFound();
+        var model = await _dal.ObterPorIdAsync(id.Value, ct: ct);
+        return model is null ? NotFound() : View(model);
     }
     // POST: Instituicoes/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(long id)
+    public async Task<IActionResult> DeleteConfirmed(long id, CancellationToken ct)
     {
-        try
+        // tem dependentes?
+        if (await _dal.PossuiDepartamentosAsync(id, ct))
         {
-            var ok = await _dal.ExcluirPorIdAsync(id);
-            if (!ok) return NotFound();
-
-            TempData["Message"] = "Instituição excluída.";
-            return RedirectToAction(nameof(Index));
-        }
-        catch (DbUpdateException)
-        {
-            // provavelmente há Departamentos vinculados (FK)
-            TempData["Message"] = "Não é possível excluir: existem departamentos vinculados.";
+            TempData["Message"] = "Não foi possível excluir: a instituição possui departamentos vinculados.";
             return RedirectToAction(nameof(Delete), new { id });
         }
+
+        var ok = await _dal.ExcluirPorIdAsync(id, ct);
+        if (!ok)
+        {
+            TempData["Message"] = "Não foi possível excluir: existem registros dependentes.";
+            return RedirectToAction(nameof(Delete), new { id });
+        }
+
+        TempData["Message"] = "Instituição removida com sucesso.";
+        return RedirectToAction(nameof(Index));
     }
 }

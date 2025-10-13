@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using rebuild.Data;
 using rebuild.Data.DAL.Cadastros;
+using rebuild.Data.DAL.Discente;
+using rebuild.Data.DAL.Docente;
 using rebuild.Models.Infra;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +21,9 @@ builder.Services.AddDbContext<IESContext>(options =>
 
 // DAL
 builder.Services.AddScoped<InstituicaoDAL>();
+builder.Services.AddScoped<AcademicoDAL>();
+builder.Services.AddScoped<DepartamentoDAL>();
+builder.Services.AddScoped<ProfessorDAL>();
 
 // >>> SESSION: serviços
 builder.Services.AddDistributedMemoryCache(); // provedor em memória

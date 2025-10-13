@@ -21,10 +21,10 @@ namespace Modelo.Discente
         [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}")]
         [Required]
         public DateTime? Nascimento { get; set; }
-        public string FotoMimeType { get; set; }
-        public byte[] Foto { get; set; }
+        public string? FotoMimeType { get; set; }
+        public byte[]? Foto { get; set; }
         [NotMapped]
-        public IFormFile formFile { get; set; }
+        public IFormFile? formFile { get; set; }
 
     }
 }

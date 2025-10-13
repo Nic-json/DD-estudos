@@ -19,18 +19,18 @@ namespace rebuild.Areas.Discente.Controllers
     public class AcademicoController : Controller
     {
         private readonly IESContext _context;
-        private readonly AcademicoDAL academicoDAL;
         private IWebHostEnvironment _env;
+        private readonly AcademicoDAL _dal;
 
         public AcademicoController(IESContext context, IWebHostEnvironment env)
         {
             _context = context;
-            academicoDAL = new AcademicoDAL(context);
-            _env = env; 
+            _dal = new AcademicoDAL(context);
+            _env = env;
         }
         public async Task<IActionResult> Index()
         {
-            return View(await academicoDAL.ObterAcademicosClassificadosPorNome().ToListAsync());
+            return View(await _dal.ObterAcademicosClassificadosPorNome().ToListAsync());
         }
         private async Task<IActionResult> ObterVisaoAcademicoPorId(long? id)
         {
@@ -38,7 +38,7 @@ namespace rebuild.Areas.Discente.Controllers
             {
                 return NotFound();
             }
-            var academico = await academicoDAL.ObterAcademicoPorIdAsync((long)id);
+            var academico = await _dal.ObterAcademicoPorIdAsync((long)id);
             if (academico == null)
             {
                 return NotFound();
@@ -58,70 +58,72 @@ namespace rebuild.Areas.Discente.Controllers
             return await ObterVisaoAcademicoPorId(id);
         }
         //	GET:	Academico/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
+        [HttpGet]
+        public IActionResult Create() => View();
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Nome,RegistroAcademico,Nascimento")]	Academico	academico)
+        public async Task<IActionResult> Create([Bind("Nome,RegistroAcademico,Nascimento")] Academico academico)
 
-                                {
+        {
+            if (!ModelState.IsValid)
+                return View(academico);
+
             try
             {
-                if (ModelState.IsValid)
-                {
-                    await academicoDAL.GravarAcademicoAsync(academico)
-;
-                    return RedirectToAction(nameof(Index));
-                }
+                await _dal.GravarAcademicoAsync(academico);
+                TempData["Message"] = "Acadêmico registrado com sucesso.";
+                return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException)
             {
-                ModelState.AddModelError("", "Não	foi	possível	inserir   os  dados.");
-
-                                                }
-            return View(academico);
+                ModelState.AddModelError(string.Empty, "Não foi possível inserir os dados.");
+                return View(academico);
+            }
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long? id, [Bind("AcademicoID,Nome,RegistroAcademico,Nascimento")]	Academico academico,	IFormFile    foto, string? chkRemoverFoto)
+        public async Task<IActionResult> Edit(long id,[Bind("AcademicoID,Nome,RegistroAcademico,Nascimento")] Academico academico,IFormFile? foto, string? chkRemoverFoto)
         {
-            if (id != academico.AcademicoID)
+            if (id != academico.AcademicoID) return NotFound();
+            if (!ModelState.IsValid) return View(academico);
+
+            // carrega do banco
+            var atual = await _dal.ObterAcademicoPorIdAsync(id);
+            if (atual is null) return NotFound();
+
+            // atualiza campos básicos
+            atual.Nome = academico.Nome;
+            atual.RegistroAcademico = academico.RegistroAcademico;
+            atual.Nascimento = academico.Nascimento;
+
+            // foto: remover / trocar / manter
+            if (!string.IsNullOrEmpty(chkRemoverFoto))
             {
-                return NotFound();
+                atual.Foto = null;
+                atual.FotoMimeType = null;
             }
-            if (ModelState.IsValid)
+            else if (foto is not null && foto.Length > 0)
             {
-                try
-                {
-                    var stream = new MemoryStream();
-                    if (chkRemoverFoto != null)
-                    {
-                        academico.Foto = null;
-                    }
-                    else { 
-                    await foto.CopyToAsync(stream);
-                    academico.Foto = stream.ToArray();
-                    academico.FotoMimeType = foto.ContentType;
-                    }
-                    await academicoDAL.GravarAcademicoAsync(academico);
-                
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!await AcademicoExists(academico.AcademicoID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                // validações simples
+                if (foto.Length > 2 * 1024 * 1024)
+                    ModelState.AddModelError("foto", "Arquivo maior que 2MB.");
+                var okContent = new[] { "image/jpeg", "image/png", "image/gif" }.Contains(foto.ContentType);
+                if (!okContent)
+                    ModelState.AddModelError("foto", "Formato inválido. Envie JPG, PNG ou GIF.");
+
+                if (!ModelState.IsValid) return View(academico);
+
+                using var ms = new MemoryStream();
+                await foto.CopyToAsync(ms);
+                atual.Foto = ms.ToArray();
+                atual.FotoMimeType = foto.ContentType;
             }
-            return View(academico);
+            // senão: mantém a foto atual
+
+            await _dal.GravarAcademicoAsync(atual);
+            TempData["Message"] = "Acadêmico atualizado.";
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost, ActionName("Delete")]
@@ -129,19 +131,19 @@ namespace rebuild.Areas.Discente.Controllers
         public async Task<IActionResult> DeleteConfirmed(long? id
 )
         {
-            var academico = await academicoDAL.EliminarAcademicoPorIdAsync((long)id);
+            var academico = await _dal.EliminarAcademicoPorIdAsync((long)id);
             TempData["Message"] = "Acadêmico	" + academico.Nome.ToUpper() + "	foi	removida";
             return RedirectToAction(nameof(Index));
         }
         private async Task<bool> AcademicoExists(long? id)
         {
-            return await academicoDAL.ObterAcademicoPorIdAsync((long)id) != null;
+            return await _dal.ObterAcademicoPorIdAsync((long)id) != null;
         }
         [HttpGet]
         public async Task<IActionResult> Foto(long id)
         {
             // chame o SEU método correto do DAL/Contexto
-            var academico = await academicoDAL.ObterAcademicoPorIdAsync(id);
+            var academico = await _dal.ObterAcademicoPorIdAsync(id);
             // ou, se usa DbContext direto:
             // var academico = await _ctx.Academicos
             //     .AsNoTracking()
@@ -159,7 +161,7 @@ namespace rebuild.Areas.Discente.Controllers
         [HttpGet]
         public async Task<IActionResult> DownloadFoto(long id)
         {
-            var a = await academicoDAL.ObterAcademicoPorIdAsync(id);
+            var a = await _dal.ObterAcademicoPorIdAsync(id);
             if (a is null) return NotFound();
             if (a.Foto is null || string.IsNullOrEmpty(a.FotoMimeType)) return NotFound();
 

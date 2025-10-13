@@ -28,26 +28,21 @@ namespace rebuild.Data.DAL.Discente
                                  .FirstOrDefaultAsync(a => a.AcademicoID == id);
 
             // Gravar (Add/Update) — considera PK long com identidade (0 = novo)
-            public async Task<Academico> GravarAcademicoAsync(Academico academico)
+            public async Task<Academico> GravarAcademicoAsync(Academico academico, CancellationToken ct = default)
             {
-                if (academico is null) throw new System.ArgumentNullException(nameof(academico));
+            ArgumentNullException.ThrowIfNull(academico);   
 
-                if (academico.AcademicoID == 0)               // novo
-                {
-                    _context.Academicos.Add(academico);
-                }   
-                else                                           // atualização
-                {
-                    // Garante rastreamento correto mesmo vindo desacoplado (ex.: de um form)
-                    _context.Entry(academico).State = EntityState.Modified;
-                }
+            if (academico.AcademicoID == 0)
+                await _context.Academicos.AddAsync(academico, ct);
+            else
+                _context.Academicos.Update(academico);
 
-                await _context.SaveChangesAsync();
-                return academico;
+            await _context.SaveChangesAsync(ct);
+            return academico;
             }
 
-            // Remover por Id — retorna o removido ou null se não encontrado
-            public async Task<Academico?> EliminarAcademicoPorIdAsync(long id)
+        // Remover por Id — retorna o removido ou null se não encontrado
+        public async Task<Academico?> EliminarAcademicoPorIdAsync(long id)
             {
                 var entity = await _context.Academicos.FindAsync(id); // aqui queremos tracking
                 if (entity is null) return null;

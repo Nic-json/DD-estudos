@@ -24,27 +24,39 @@ namespace rebuild.Controllers
             _signInManager = signInManager;
             _logger = logger;
         }
-        [HttpGet]
         [AllowAnonymous]
-        [ValidateAntiForgeryToken]
-
-        public async Task<IActionResult> Acessar(AcessarViewModel model,string returnUrl = null)
-
+        [HttpGet]
+        public IActionResult Acessar(string? returnUrl = null)
         {
-                ViewData["ReturnUrl"] = returnUrl;
-            if (ModelState.IsValid)
-            {
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Senha, model.LembrarDeMim, lockoutOnFailure: false);
+            ViewData["ReturnUrl"] = returnUrl;
+            return View(new AcessarViewModel()); // tela em branco
+        }
 
-                                if (result.Succeeded)
-                {
-                    _logger.LogInformation("Usuário	Autenticado.");
-                    return RedirectToLocal(returnUrl);
-                }
-            }
-            ModelState.AddModelError(string.Empty, "Falha	na	tentativa	de login.");
+        [AllowAnonymous]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Acessar(AcessarViewModel model, string? returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
 
+            if (!ModelState.IsValid)
                 return View(model);
+
+            var result = await _signInManager.PasswordSignInAsync(
+                model.Email, model.Senha, model.LembrarDeMim, lockoutOnFailure: false);
+
+            if (result.Succeeded)
+            {
+                _logger.LogInformation("Usuário autenticado.");
+                // Redireciona somente se for URL local
+                if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+                    return Redirect(returnUrl);
+
+                return RedirectToAction("Index", "Home");
+            }
+
+            ModelState.AddModelError(string.Empty, "Falha na tentativa de login.");
+            return View(model);
         }
 
         [HttpGet]

@@ -1,5 +1,4 @@
 ﻿@model IEnumerable<Modelo.Cadastros.Instituicao>
-
 @{
     Layout = "_LayoutIES";
 }
@@ -17,30 +16,23 @@
     </environment>
 }
 
-@if (@TempData["Message"] != null)
+@if (TempData["Message"] is string msg)
 {
-    <div class="alert	alert-success" role="alert">
-        @TempData["Message"]
-    </div>
+    <div class="alert alert-success" role="alert">@msg</div>
 }
 
 <div class="card card-block">
     <div class="card-header text-white bg-primary text-center h1">
         Instituições Registradas
     </div>
+
     <div class="card-body">
         <table id="tabela_instituicoes" class="display">
             <thead>
                 <tr>
-                    <th>
-                        @Html.DisplayNameFor(model => model.First().InstituicaoID)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.First().Nome)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.First().Endereco)
-                    </th>
+                    <th>Id</th>
+                    <th>Nome</th>
+                    <th>Endereço</th>
                     <th></th>
                 </tr>
             </thead>
@@ -48,27 +40,32 @@
                 @foreach (var item in Model)
                 {
                     <tr>
+                        <td>@item.InstituicaoID</td>
+                        <td>@item.Nome</td>
+                        <td>@item.Endereco</td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.InstituicaoID)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Nome)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Endereco)
-                        </td>
-                        <td>
-                            <a asp-action="Edit" asp-route-id="@item.InstituicaoID">Edit</a>
-                            <a asp-action="Details" asp-route-id="@item.InstituicaoID">Details</a>
-                            <a asp-action="Delete" asp-route-id="@item.InstituicaoID">Delete</a>
+                            <!-- Se suas actions recebem (long id): -->
+                            <a asp-area="Cadastros" asp-controller="Instituicao" asp-action="Edit" asp-route-id="@item.InstituicaoID">Editar</a> |
+                            <a asp-area="Cadastros" asp-controller="Instituicao" asp-action="Details" asp-route-id="@item.InstituicaoID">Detalhes</a> |
+                            <a asp-area="Cadastros" asp-controller="Instituicao" asp-action="Delete" asp-route-id="@item.InstituicaoID">Excluir</a>
+
+                            @* Se suas actions recebem (long InstituicaoID), troque para:
+                        <a asp-area="Cadastros" asp-controller="Instituicao" asp-action="Edit"    asp-route-InstituicaoID="@item.InstituicaoID">Editar</a> |
+                        <a asp-area="Cadastros" asp-controller="Instituicao" asp-action="Details" asp-route-InstituicaoID="@item.InstituicaoID">Detalhes</a> |
+                        <a asp-area="Cadastros" asp-controller="Instituicao" asp-action="Delete"  asp-route-InstituicaoID="@item.InstituicaoID">Excluir</a>
+                        *@
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
     </div>
+
     <div class="card-footer bg-success text-center">
-        <a asp-action="Create" class="btn btn-success">Criar uma nova instituição</a>
+        <a class="btn btn-success"
+           asp-area="Cadastros" asp-controller="Instituicao" asp-action="Create">
+            Criar uma nova instituição
+        </a>
     </div>
 </div>
 
@@ -77,11 +74,11 @@
         <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
     </environment>
     <environment exclude="Development">
-        <script src="//cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"
+        <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"
                 asp-fallback-src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
     </environment>
-    <script type="text/javascript">
-        $(document).ready(function () {
+    <script>
+        $(function () {
             $('#tabela_instituicoes').DataTable();
         });
     </script>
