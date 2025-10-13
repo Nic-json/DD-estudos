@@ -1,0 +1,32 @@
+﻿@model IEnumerable<Modelo.Cadastros.Curso>
+@{
+    Layout = "_LayoutIES";
+    ViewData["Title"] = "Cursos";
+}
+<div class="card">
+    <div class="card-header bg-primary text-white d-flex align-items-center">
+        <span class="h5 mb-0">Cursos</span>
+        <a class="btn btn-light btn-sm ml-auto"
+           asp-area="Cadastros" asp-controller="Curso" asp-action="Create">Novo Curso</a>
+    </div>
+    <div class="card-body">
+        @if (TempData["Message"] != null)
+        {
+            <div class="alert alert-success">@TempData["Message"]</div>
+        }
+        <table class="table table-striped">
+            <thead>
+                <tr><th>Nome</th><th>Departamento</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var c in Model)
+                {
+                    <tr>
+                        <td>@c.Nome</td>
+                        <td>@c.Departamento?.Nome</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

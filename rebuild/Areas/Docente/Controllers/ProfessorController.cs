@@ -1,171 +1,186 @@
-﻿
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
+
 using Modelo.Cadastros;
 using Modelo.Docente;
-using Newtonsoft.Json;
-using rebuild.Areas.Docente.Models;
+
 using rebuild.Data;
 using rebuild.Data.DAL.Cadastros;
-using rebuild.Data.DAL.Discente;
 using rebuild.Data.DAL.Docente;
-using rebuild.Migrations;
-using System;
-using System.Collections.Generic;
-using System.Security.Cryptography;
-namespace Capitulo05.Areas.Docente.Controllers
+using rebuild.Areas.Docente.Models;
+
+namespace rebuild.Areas.Docente.Controllers
 {
     [Area("Docente")]
     public class ProfessorController : Controller
     {
         private readonly IESContext _context;
-        private readonly InstituicaoDAL instituicaoDAL;
-        private readonly DepartamentoDAL departamentoDAL;
-        private readonly CursoDAL cursoDAL;
-        private readonly ProfessorDAL professorDAL;
+        private readonly InstituicaoDAL _instituicaoDAL;
+        private readonly DepartamentoDAL _departamentoDAL;
+        private readonly CursoDAL _cursoDAL;
+        private readonly ProfessorDAL _professorDAL;
+
         public ProfessorController(IESContext context)
         {
             _context = context;
-            instituicaoDAL = new InstituicaoDAL(context);
-            departamentoDAL = new DepartamentoDAL(context);
-            cursoDAL = new CursoDAL(context);
-            professorDAL = new ProfessorDAL(context);
+            _instituicaoDAL = new InstituicaoDAL(context);
+            _departamentoDAL = new DepartamentoDAL(context);
+            _cursoDAL = new CursoDAL(context);
+            _professorDAL = new ProfessorDAL(context);
         }
+
+        // LISTA DE PROFESSORES
         public async Task<IActionResult> Index()
-        {
-            return View(await professorDAL.ObterProfessorClassificadosPorNome().ToListAsync());
-        }
-        public IActionResult Create()
-        {
-            return View();
-        }
+            => View(await _professorDAL.ObterProfessorClassificadosPorNome().ToListAsync());
+
+        // CADASTRO SIMPLES DE PROFESSOR (opcional)
+        [HttpGet]
+        public IActionResult Create() => View();
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Nome,ProfessorID,CursosProfessores")] Professor professor)
-
+        public async Task<IActionResult> Create([Bind("Nome")] Professor professor)
         {
-            try
-            {
-                if (ModelState.IsValid)
-                {
-                    await professorDAL.GravarProfessorAsync(professor)
-;
-                    return RedirectToAction(nameof(Index));
-                }
-            }
-            catch (DbUpdateException)
-            {
-                ModelState.AddModelError("", "Não	foi	possível	inserir   os  dados.");
+            if (!ModelState.IsValid) return View(professor);
 
-            }
-            return View(professor);
-        }
-        public void PrepararViewBags(List<Instituicao> instituicoes, List
-        <Departamento> departamentos, List<Curso> cursos, List<Professor> professores)
-        {
-            instituicoes.Insert(0, new Instituicao()
-            {
-                InstituicaoID = 0,
-                Nome = "Selecione	a	instituição"
-            });
-            ViewBag.Instituicoes = instituicoes;
-            departamentos.Insert(0, new Departamento()
-            {
-                DepartamentoID =
-0,
-                Nome = "Selecione	o	departamento"
-            });
-            ViewBag.Departamentos = departamentos;
-            cursos.Insert(0, new Curso()
-            {
-                CursoID = 0,
-                Nome = "Selecione o   curso"
-            });
-
-            ViewBag.Cursos = cursos;
-            professores.Insert(0, new Professor()
-            {
-                ProfessorID = 0,
-                Nome = "Selecione	o	professor"
-            });
-            ViewBag.Professores = professores;
+            await _professorDAL.GravarProfessorAsync(professor);
+            TempData["Message"] = "Professor cadastrado.";
+            return RedirectToAction(nameof(Index));
         }
 
+        // ----- REGISTRAR PROFESSOR EM CURSO -----
 
         [HttpGet]
-        public IActionResult AdicionarProfessor()
+        public async Task<IActionResult> AdicionarProfessor()
         {
-            PrepararViewBags(instituicaoDAL.ObterInstituicoesClassificadasPorNome().ToList(),
-            new List<Departamento>().ToList(), new List<Curso>().ToList(), new List<Professor>().ToList());
-            return View();
+            await PreencherViewBagsAsync(null, null, null);
+            return View(new AdicionarProfessorViewModel());
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult AdicionarProfessor([Bind("InstituicaoID,	DepartamentoID,    CursoID,    ProfessorID")] AdicionarProfessorViewModel model)
+        public async Task<IActionResult> AdicionarProfessor(AdicionarProfessorViewModel model)
         {
-            if (model.InstituicaoID == 0 || model.DepartamentoID == 0 || model.CursoID == 0 || model.ProfessorID == 0)
+            if (model.InstituicaoID is null || model.DepartamentoID is null ||
+                model.CursoID is null || model.ProfessorID is null)
             {
-                ModelState.AddModelError("", "É	preciso	selecionar	todos	os  dados");
-
+                ModelState.AddModelError("", "É preciso selecionar todos os dados.");
             }
+
+            if (!ModelState.IsValid)
+            {
+                await PreencherViewBagsAsync(model.InstituicaoID, model.DepartamentoID, model.CursoID);
+                return View(model);
+            }
+
+            // efetiva o vínculo (seu DAL é void, sem await)
+            _cursoDAL.RegistrarProfessor((long)model.CursoID, (long)model.ProfessorID);
+
+            // opcional: salva no Session para "últimos registros"
+            RegistrarProfessorNaSessao((long)model.CursoID, (long)model.ProfessorID);
+
+            TempData["Message"] = "Professor registrado no curso.";
+            return RedirectToAction(nameof(AdicionarProfessor));
+        }
+
+        // ----- JSON: combos encadeados -----
+        [HttpGet]
+        public async Task<JsonResult> ObterDepartamentosPorInstituicao(long actionID)
+        {
+            var lista = await _departamentoDAL.ObterDepartamentosPorInstituicao(actionID)
+                                              .Select(d => new { value = d.DepartamentoID, text = d.Nome })
+                                              .ToListAsync();
+            return Json(lista);
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> ObterCursosPorDepartamento(long actionID)
+        {
+            var lista = await _cursoDAL.ObterCursosPorDepartamento(actionID)
+                                       .Select(c => new { value = c.CursoID, text = c.Nome })
+                                       .ToListAsync();
+            return Json(lista);
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> ObterProfessoresForaDoCurso(long actionID)
+        {
+            var lista = await _cursoDAL.ObterProfessoresForaDoCurso(actionID)
+                                       .Select(p => new { value = p.ProfessorID, text = p.Nome })
+                                       .ToListAsync();
+            return Json(lista);
+        }
+
+        // ----- Utilitários -----
+        private async Task PreencherViewBagsAsync(long? instituicaoId, long? departamentoId, long? cursoId)
+        {
+            // Instituições
+            ViewBag.Instituicoes = await _instituicaoDAL
+                .ObterInstituicoesClassificadasPorNome()
+                .ToListAsync();
+
+            // Departamentos (dependem de Instituição)
+            if (instituicaoId.GetValueOrDefault() > 0)
+                ViewBag.Departamentos = await _departamentoDAL
+                    .ObterDepartamentosPorInstituicao(instituicaoId!.Value)
+                    .ToListAsync();
             else
-            {
-                cursoDAL.RegistrarProfessor((long)model.CursoID, (long)model.ProfessorID);
-                PrepararViewBags(instituicaoDAL.ObterInstituicoesClassificadasPorNome().ToList(),
-                                departamentoDAL.ObterDepartamentosPorInstituicao((long)model.InstituicaoID).ToList(),
-                                cursoDAL.ObterCursosPorDepartamento((long)model.DepartamentoID).ToList(),
-                                cursoDAL.ObterProfessoresForaDoCurso((long)model.CursoID).ToList());
-                RegistrarProfessorNaSessao((long)model.CursoID,(long)model.ProfessorID);
-            }
-            return View(model);
+                ViewBag.Departamentos = new List<Departamento>();
+
+            // Cursos (dependem de Departamento)  <<< CORRIGIDO
+            if (departamentoId.GetValueOrDefault() > 0)
+                ViewBag.Cursos = await _cursoDAL
+                    .ObterCursosPorDepartamento(departamentoId!.Value)
+                    .ToListAsync();
+            else
+                ViewBag.Cursos = new List<Curso>();
+
+            // Professores fora do curso (dependem de Curso)  <<< CORRIGIDO (vem do CursoDAL)
+            if (cursoId.GetValueOrDefault() > 0)
+                ViewBag.Professores = await _cursoDAL
+                    .ObterProfessoresForaDoCurso(cursoId!.Value)
+                    .ToListAsync();
+            else
+                ViewBag.Professores = new List<Professor>();
         }
 
+        private void RegistrarProfessorNaSessao(long cursoID, long professorID)
+        {
+            var cursoProfessor = new CursoProfessor { CursoID = cursoID, ProfessorID = professorID };
 
-        public JsonResult ObterDepartamentosPorInstituicao(long actionID)
-        {
-            var departamentos = departamentoDAL.ObterDepartamentosPorInstituicao(actionID).ToList();
-            return Json(new SelectList(departamentos, "DepartamentoID", "Nome"));
-        }
-        public JsonResult ObterCursosPorDepartamento(long actionID)
-        {
-            var cursos = cursoDAL.ObterCursosPorDepartamento(actionID).ToList();
-            return Json(new SelectList(cursos, "CursoID", "Nome"));
-        }
-        public JsonResult ObterProfessoresForaDoCurso(long actionID)
-        {
-            var professores = cursoDAL.ObterProfessoresForaDoCurso(actionID).ToList();
-            return Json(new SelectList(professores, "ProfessorID", "Nome"));
-        }
-        public void RegistrarProfessorNaSessao(long cursoID, long professorID)
-        {
-            var cursoProfessor = new CursoProfessor()
-            {
-                ProfessorID = professorID,
-                CursoID = cursoID
-            };
-            List<CursoProfessor> cursosProfessor = new List<CursoProfessor>();
-            string cursosProfessoresSession = HttpContext.Session.GetString("cursosProfessores");
-            if (cursosProfessoresSession != null)
-            {
-                cursosProfessor = JsonConvert.DeserializeObject < List < CursoProfessor >> (cursosProfessoresSession);
-            }
-            cursosProfessor.Add(cursoProfessor);
-            HttpContext.Session.SetString("cursosProfessores", JsonConvert.SerializeObject(cursosProfessor));
+            var json = HttpContext.Session.GetString("cursosProfessores");
+            var lista = string.IsNullOrEmpty(json)
+                ? new List<CursoProfessor>()
+                : JsonConvert.DeserializeObject<List<CursoProfessor>>(json)!;
+
+            lista.Add(cursoProfessor);
+            HttpContext.Session.SetString("cursosProfessores", JsonConvert.SerializeObject(lista));
         }
 
         public IActionResult VerificarUltimosRegistros()
         {
-            List<CursoProfessor> cursosProfessor = new List<CursoProfessor>();
-            string cursosProfessoresSession = HttpContext.Session.GetString("cursosProfessores");
-            if (cursosProfessoresSession != null)
-            {
-                cursosProfessor = JsonConvert.DeserializeObject < List < CursoProfessor >> (cursosProfessoresSession);
-            }
-            return View(cursosProfessor);
+            var json = HttpContext.Session.GetString("cursosProfessores");
+            var lista = string.IsNullOrEmpty(json)
+                ? new List<CursoProfessor>()
+                : JsonConvert.DeserializeObject<List<CursoProfessor>>(json)!;
+
+            return View(lista);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Details(long id)
+        {
+            var prof = await _context.Professores
+                .AsNoTracking()
+                .Include(p => p.CursosProfessores)
+                    .ThenInclude(cp => cp.Curso)
+                .FirstOrDefaultAsync(p => p.ProfessorID == id);
 
+            if (prof is null) return NotFound();
+            return View(prof);
+        }
     }
 }

@@ -11,10 +11,10 @@ namespace Modelo.Cadastros
     {
         public long CursoID { get; set; }
         public string Nome { get; set; } = string.Empty;
-        public long? DepartamentoID { get; set; }
+        public long DepartamentoID { get; set; }
         public Departamento? Departamento { get; set; }
         public virtual ICollection<CursoDisciplina>? CursosDisciplinas { get; set; }
-        public virtual ICollection<CursoProfessor> CursosProfessores { get; set; }
+        public virtual ICollection<CursoProfessor>? CursosProfessores { get; set; }
 
     }
 }

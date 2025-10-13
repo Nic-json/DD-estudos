@@ -125,6 +125,12 @@
                     <li class="nav-item">
                         <a class="nav-link" asp-area="Discente" asp-controller="Academico" asp-action="Index">Acadêmicos</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="Docente" asp-controller="Professor" asp-action="Index">Professor</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="Cadastros" asp-controller="Curso" asp-action="Index">Cursos</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -152,6 +158,11 @@
                             <img src="~/images/academic.png" width="22" height="22" class="mr-2" alt="" />
                             Acadêmicos
                         </a>
+                        <a class="list-group-item list-group-item-action nav-link"
+                           asp-area="Docente" asp-controller="Professor" asp-action="Index">
+                            <img src="~/images/university.png" width="22" height="22" class="mr-2" alt="" />
+                            Professores
+                        </a>
                     </div>
                 </nav>
             </aside>
@@ -177,13 +188,13 @@
     </footer>
 
     <environment include="Development">
-        <script src="~/lib/jquery/jquery.slim.min.js"></script>
+        <script src="~/lib/jquery/jquery.min.js"></script>
         <script src="~/lib/popper.js/umd/popper.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
     </environment>
     <environment exclude="Development">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"
-                asp-fallback-src="~/lib/jquery/jquery.slim.min.js"></script>
+                asp-fallback-src="~/lib/jquery/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.4/umd/popper.min.js"
                 asp-fallback-src="~/lib/popper.js/umd/popper.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.min.js"

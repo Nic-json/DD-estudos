@@ -1,0 +1,60 @@
+﻿@model Modelo.Docente.Professor
+@{
+    Layout = "_LayoutIES";
+    ViewData["Title"] = "Detalhes do Professor";
+}
+
+<div class="card">
+    <div class="card-header bg-secondary text-white h5">
+        Detalhes do Professor
+    </div>
+
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">ID</dt>
+            <dd class="col-sm-9">@Model.ProfessorID</dd>
+
+            <dt class="col-sm-3">Nome</dt>
+            <dd class="col-sm-9">@Model.Nome</dd>
+        </dl>
+
+        <hr />
+
+        <h6 class="mb-3">Cursos vinculados</h6>
+        @if (Model.CursosProfessores != null && Model.CursosProfessores.Any())
+        {
+            <ul class="list-group">
+                @foreach (var cp in Model.CursosProfessores)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        @cp.Curso?.Nome
+                        <span class="badge badge-light">CursoID: @cp.CursoID</span>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <div class="text-muted">Nenhum curso vinculado a este professor.</div>
+        }
+    </div>
+
+    <div class="card-footer d-flex justify-content-between">
+        <div>
+            <a class="btn btn-warning"
+               asp-area="Docente" asp-controller="Professor" asp-action="AdicionarProfessor">
+                Vincular a um curso
+            </a>
+            <a class="btn btn-light"
+               asp-area="Docente" asp-controller="Professor" asp-action="Index">
+                Voltar
+            </a>
+        </div>
+
+        <!-- ✅ Botão para “Verificar últimos registros” -->
+        <a class="btn btn-info"
+           asp-area="Docente" asp-controller="Professor" asp-action="VerificarUltimosRegistros">
+            Verificar últimos registros
+        </a>
+    </div>
+</div>

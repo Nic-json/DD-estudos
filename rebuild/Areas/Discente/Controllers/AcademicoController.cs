@@ -63,12 +63,27 @@ namespace rebuild.Areas.Discente.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Nome,RegistroAcademico,Nascimento")] Academico academico)
+        public async Task<IActionResult> Create([Bind("Nome,RegistroAcademico,Nascimento")] Academico academico, IFormFile? foto)
 
         {
             if (!ModelState.IsValid)
                 return View(academico);
 
+            if (foto is not null && foto.Length > 0)
+            {
+                // validação simples (opcional)
+                if (!new[] { "image/jpeg", "image/png", "image/gif" }.Contains(foto.ContentType))
+                    ModelState.AddModelError("foto", "Formato inválido. Envie JPG, PNG ou GIF.");
+                if (foto.Length > 2 * 1024 * 1024)
+                    ModelState.AddModelError("foto", "Arquivo maior que 2MB.");
+
+                if (!ModelState.IsValid) return View(academico);
+
+                using var ms = new MemoryStream();
+                await foto.CopyToAsync(ms);
+                academico.Foto = ms.ToArray();
+                academico.FotoMimeType = foto.ContentType;
+            }
             try
             {
                 await _dal.GravarAcademicoAsync(academico);
@@ -162,8 +177,8 @@ namespace rebuild.Areas.Discente.Controllers
         public async Task<IActionResult> DownloadFoto(long id)
         {
             var a = await _dal.ObterAcademicoPorIdAsync(id);
-            if (a is null) return NotFound();
-            if (a.Foto is null || string.IsNullOrEmpty(a.FotoMimeType)) return NotFound();
+            if (a is null || a.Foto is null || string.IsNullOrEmpty(a.FotoMimeType))
+                return NotFound();
 
             var ext = a.FotoMimeType switch
             {
@@ -174,19 +189,8 @@ namespace rebuild.Areas.Discente.Controllers
             };
 
             var fileName = $"Foto_{id}.{ext}";
-            var folderPath = Path.Combine(_env.WebRootPath, "downloads");
-            Directory.CreateDirectory(folderPath); // idempotente
-            var fullPath = Path.Combine(folderPath, fileName);
-
-            // grava o arquivo físico
-            await System.IO.File.WriteAllBytesAsync(fullPath, a.Foto);
-
-            // serve via provider
-            IFileProvider provider = new PhysicalFileProvider(folderPath);
-            IFileInfo fileInfo = provider.GetFileInfo(fileName);
-            using var readStream = fileInfo.CreateReadStream(); // stream é descartado ao final da resposta
-
-            return File(readStream, a.FotoMimeType, fileName);
+            // devolve o conteúdo em memória (NÃO usa stream/arquivo físico)
+            return File(a.Foto, a.FotoMimeType, fileName);
         }
     }
 }

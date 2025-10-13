@@ -14,10 +14,10 @@ namespace rebuild.Data.DAL.Cadastros
         }
         //	ObterCursosPorDepartamento	-	CursoDAL
         public IQueryable<Curso> ObterCursosPorDepartamento(long departamentoID)
-        {
-            var cursos = _context.Cursos.Where(c => c.DepartamentoID == departamentoID).OrderBy(d => d.Nome);
-            return cursos;
-        }
+    => _context.Cursos
+               .Where(c => c.DepartamentoID == departamentoID)
+               .OrderBy(c => c.Nome);
+
 
         public IQueryable<Professor> ObterProfessoresForaDoCurso(long cursoID)
         {

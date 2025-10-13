@@ -11,6 +11,7 @@ namespace Modelo.Cadastros
         public long InstituicaoID { get; set; }
         public string Nome { get; set; }
         public String Endereco { get; set; }
-        public virtual ICollection<Departamento>? Departamento { get; set; }
+        public ICollection<Departamento> Departamento { get; set; } = new List<Departamento>();
+
     }
 }

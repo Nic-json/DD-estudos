@@ -35,8 +35,9 @@ namespace rebuild.Data.DAL.Docente
             }
             else                                           // atualização
             {
-                // Garante rastreamento correto mesmo vindo desacoplado (ex.: de um form)
                 _context.Entry(professor).State = EntityState.Modified;
+                // opcional: evitar mexer na PK
+                _context.Entry(professor).Property(p => p.ProfessorID).IsModified = false;
             }
 
             await _context.SaveChangesAsync();

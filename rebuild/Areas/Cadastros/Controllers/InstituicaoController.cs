@@ -23,6 +23,7 @@ public class InstituicaoController : Controller
     // GET: Instituicoes/Details/5
     public async Task<IActionResult> Details(long id)
     {
+
         var inst = await _dal.ObterPorIdAsync(id, incluirDepartamentos: true);
         if (inst is null) return NotFound();
         return View(inst);

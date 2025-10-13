@@ -3,12 +3,19 @@
 @{
     Layout = "_LayoutIES";
 }
+
 @section Styles {
     <environment include="Development">
         <link rel="stylesheet" href="~/lib/datatables/css/jquery.dataTables.min.css" />
         <link rel="stylesheet" href="~/lib/font-awesome/css/all.css" />
     </environment>
     <environment exclude="Development">
+        <link rel="stylesheet"
+              href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css"
+              asp-fallback-href="~/lib/datatables/css/jquery.dataTables.min.css"
+              asp-fallback-test-class="sr-only"
+              asp-fallback-test-property="position"
+              asp-fallback-test-value="absolute" />
         <link rel="stylesheet"
               href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/font-awesome.min.css"
               asp-fallback-href="~/lib/font-awesome/css/all.css"
@@ -24,10 +31,59 @@
     </div>
 
     <div class="card-body">
-        @* Renderiza o cartão de detalhes da Instituição *@
+
+        @* Cartão principal com os dados da instituição *@
         @{
             await Html.RenderPartialAsync("_PartialDetailsContentCard.cshtml", Model);
         }
+
+        <hr class="my-4" />
+
+        <h5 class="mb-3">Departamentos desta instituição</h5>
+
+        @if (Model.Departamento != null && Model.Departamento.Any())
+        {
+            <table id="tabela_departamentos" class="display table table-striped table-sm">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th class="text-right">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var d in Model.Departamento.OrderBy(x => x.Nome))
+                    {
+                        <tr>
+                            <td>@d.Nome</td>
+                            <td class="text-right">
+                                <a class="btn btn-link btn-sm"
+                                   asp-area="Cadastros"
+                                   asp-controller="Departamento"
+                                   asp-action="Details"
+                                   asp-route-id="@d.DepartamentoID">
+                                    Detalhes
+                                </a>
+                                |
+                                <a class="btn btn-link btn-sm"
+                                   asp-area="Cadastros"
+                                   asp-controller="Departamento"
+                                   asp-action="Edit"
+                                   asp-route-id="@d.DepartamentoID">
+                                    Editar
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="alert alert-warning mb-0">
+                Nenhum departamento cadastrado para esta instituição.
+            </div>
+        }
+
     </div>
 
     <div class="card-footer bg-info text-center text-white">
@@ -35,3 +91,27 @@
         <a asp-action="Index" class="btn btn-light">Retornar à listagem de instituições</a>
     </div>
 </div>
+
+@section ScriptPage {
+    <environment include="Development">
+        <script src="~/lib/jquery/jquery.slim.min.js"></script>
+        <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"
+                asp-fallback-src="~/lib/jquery/jquery.slim.min.js"></script>
+        <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"
+                asp-fallback-src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+    </environment>
+
+    <script>
+        $(function () {
+            $('#tabela_departamentos').DataTable({
+                paging: true,
+                searching: false,
+                info: false,
+                order: [[0, 'asc']]
+            });
+        });
+    </script>
+}
