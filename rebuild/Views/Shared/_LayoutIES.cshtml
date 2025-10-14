@@ -32,46 +32,96 @@
         <link rel="stylesheet" href="~/css/site.css" />
     </environment>
 
+    <!-- Font Awesome (ícones) -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+
     @RenderSection("Styles", required: false)
 
     <style>
-        /* retoques rápidos */
-        .sidebar {
-            min-height: calc(100vh - 64px - 90px); /* navbar + footer */
-            padding-top: 1rem;
+        /* Paleta e base */
+        :root {
+            --brand-primary: #0d6efd;
+            --surface: #ffffff;
+            --bg: #f6f8fb;
+            --muted: #6c757d;
+            --radius: 1rem;
+            --shadow: 0 10px 28px rgba(16, 24, 40, .08);
         }
 
-            .sidebar .nav-link {
-                border-radius: .5rem;
-                padding: .6rem .8rem;
-                transition: .15s ease;
+        html, body {
+            height: 100%;
+            background: var(--bg);
+        }
+
+        /* NAVBAR */
+        .navbar-brand img {
+            height: 36px;
+            width: auto;
+            margin-right: .5rem;
+            margin-left: .5rem;
+        }
+
+        .navbar {
+            box-shadow: 0 2px 18px rgba(13, 110, 253, .15);
+        }
+
+            .navbar .nav-link {
+                font-weight: 500;
+                opacity: .95;
             }
 
-                .sidebar .nav-link:hover {
-                    background: rgba(13,110,253,.1);
-                    text-decoration: none;
+                .navbar .nav-link:hover,
+                .navbar .nav-link:focus {
+                    opacity: 1;
                 }
 
-        .brand-logo {
-            height: 44px;
-            width: auto;
+        /* CONTEÚDO (cartão central) */
+        .page-wrap {
+            min-height: calc(100vh - 64px - 110px); /* altura útil descontando navbar e footer */
+            display: flex;
+            align-items: flex-start;
         }
 
         .content-card {
-            border-radius: 1rem;
-            box-shadow: 0 8px 24px rgba(0,0,0,.06);
-            background: #fff;
+            width: 100%;
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
         }
 
-        footer img {
-            object-fit: cover;
+            /* Imagens responsivas usadas na Home */
+            .content-card img.img-fluid,
+            .content-card img.img-thumbnail {
+                max-width: 100%;
+                height: auto;
+            }
+
+        /* RODAPÉ */
+        .footer-bg {
+            background: url('/images/background.jpg') center/cover no-repeat;
+            min-height: 100px; /* ajuste a altura */
+            border-top-left-radius: 1rem; /* combina com seu layout */
+            border-top-right-radius: 1rem;
+            box-shadow: 0 10px 28px rgba(16,24,40,.08);
         }
+
+        /* Overlay para contraste do texto (opcional) */
+        .footer-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,.40), rgba(0,0,0,.20));
+            border-top-left-radius: 1rem;
+            border-top-right-radius: 1rem;
+        }
+
     </style>
 </head>
 
-<body class="bg-light">
+<body class="d-flex flex-column min-vh-100 bg-light">
 
-    <!-- NAVBAR -->
+        <!-- NAVBAR -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
@@ -137,38 +187,11 @@
     </nav>
 
     <!-- CONTEÚDO -->
-    <main class="container-fluid my-4">
+    <main class="container-fluid my-4 flex-fill">
         <div class="row">
-            <!-- sidebar -->
-            <aside class="col-12 col-md-3 col-lg-2 mb-3 mb-md-0">
-                <nav class="sidebar">
-                    <div class="list-group list-group-flush">
-                        <a class="list-group-item list-group-item-action nav-link"
-                           asp-area="Cadastros" asp-controller="Instituicao" asp-action="Index">
-                            <img src="~/images/university.png" width="22" height="22" class="mr-2" alt="" />
-                            Instituições
-                        </a>
-                        <a class="list-group-item list-group-item-action nav-link"
-                           asp-area="Cadastros" asp-controller="Departamento" asp-action="Index">
-                            <img src="~/images/department.png" width="22" height="22" class="mr-2" alt="" />
-                            Departamentos
-                        </a>
-                        <a class="list-group-item list-group-item-action nav-link"
-                           asp-area="Discente" asp-controller="Academico" asp-action="Index">
-                            <img src="~/images/academic.png" width="22" height="22" class="mr-2" alt="" />
-                            Acadêmicos
-                        </a>
-                        <a class="list-group-item list-group-item-action nav-link"
-                           asp-area="Docente" asp-controller="Professor" asp-action="Index">
-                            <img src="~/images/university.png" width="22" height="22" class="mr-2" alt="" />
-                            Professores
-                        </a>
-                    </div>
-                </nav>
-            </aside>
 
             <!-- conteúdo principal -->
-            <section class="col-12 col-md-9 col-lg-10">
+            <section class="col-12">
                 <div class="content-card p-4">
                     @RenderBody()
                 </div>
@@ -177,12 +200,15 @@
     </main>
 
     <!-- RODAPÉ -->
-    <footer class="mt-5">
-        <div class="w-100" style="background-color:#e3f2fd;">
-            <img src="~/images/background.jpg" class="w-100" style="height:100px;" alt="" />
-            <div class="container py-3 d-flex align-items-center">
-                <span class="text-muted">Everton Coimbra de Araújo</span>
-                <span class="ml-auto text-secondary small">&copy; @DateTime.Now.Year</span>
+    
+    <footer class="mt-auto">
+        <!-- mt-auto mantém o sticky footer -->
+        <div class="position-relative footer-bg">
+            <!-- overlay opcional -->
+            <div class="footer-overlay"></div>
+
+            <div class="container py-2 position-relative text-white d-flex align-items-center">
+                <span class="ms-auto small">&copy; @DateTime.Now.Year</span>
             </div>
         </div>
     </footer>

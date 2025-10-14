@@ -4,85 +4,117 @@
     ViewData["Title"] = "Editar Acadêmico";
 }
 
-<form asp-area="Discente"
-      asp-controller="Academico"
-      asp-action="Edit"
-      asp-route-id="@Model.AcademicoID"
-      method="post"
-      enctype="multipart/form-data">
-
-    @Html.AntiForgeryToken()
-    <input type="hidden" asp-for="AcademicoID" />
-
-    <!-- MOSTRE ERROS DE VALIDAÇÃO -->
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-    <div class="mb-3">
-        <label asp-for="RegistroAcademico" class="form-label"></label>
-        <input asp-for="RegistroAcademico" class="form-control" />
-        <span asp-validation-for="RegistroAcademico" class="text-danger"></span>
+<div class="card shadow-sm">
+    <div class="card-header bg-secondary text-white text-center h5">
+        Editar Acadêmico
     </div>
 
-    <div class="mb-3">
-        <label asp-for="Nome" class="form-label"></label>
-        <input asp-for="Nome" class="form-control" />
-        <span asp-validation-for="Nome" class="text-danger"></span>
-    </div>
+    <form asp-area="Discente"
+          asp-controller="Academico"
+          asp-action="Edit"
+          asp-route-id="@Model.AcademicoID"
+          method="post"
+          enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="AcademicoID" />
 
-    <!-- >>> CAMPO QUE FALTAVA <<< -->
-    <div class="mb-3">
-        <label asp-for="Nascimento" class="form-label"></label>
-        <input asp-for="Nascimento" type="date" class="form-control" />
-        <span asp-validation-for="Nascimento" class="text-danger"></span>
-    </div>
+        <div class="card-body">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-    <!-- Foto atual -->
-    <div class="mb-3">
-        <label class="form-label d-block">Foto atual</label>
-
-        @if (Model.Foto is not null)
-        {
-            <img class="img-thumbnail mb-2"
-                 style="max-height:160px;object-fit:cover"
-                 src="@Url.Action("Foto", "Academico", new { area = "Discente", id = Model.AcademicoID })" />
-
-            <div>
-                <a class="btn btn-sm btn-outline-secondary"
-                   asp-area="Discente" asp-controller="Academico"
-                   asp-action="DownloadFoto" asp-route-id="@Model.AcademicoID">
-                    Download
-                </a>
+            <!-- RA -->
+            <div class="mb-3">
+                <label asp-for="RegistroAcademico" class="form-label">RA</label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-id-card"></i>
+                    </span>
+                    <input asp-for="RegistroAcademico" class="form-control" />
+                </div>
+                <span asp-validation-for="RegistroAcademico" class="text-danger"></span>
             </div>
 
-            <div class="form-check mt-2">
-                <input class="form-check-input" type="checkbox"
-                       id="chkRemoverFoto" name="chkRemoverFoto" value="Sim" />
-                <label class="form-check-label" for="chkRemoverFoto">
-                    Remover Foto
-                </label>
+            <!-- Nome -->
+            <div class="mb-3">
+                <label asp-for="Nome" class="form-label">Nome</label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-user"></i>
+                    </span>
+                    <input asp-for="Nome" class="form-control" />
+                </div>
+                <span asp-validation-for="Nome" class="text-danger"></span>
             </div>
-        }
-        else
-        {
-            <div class="text-muted">Sem foto cadastrada.</div>
-        }
-    </div>
 
-    <!-- Upload -->
-    <div class="mb-3">
-        <label class="form-label">Enviar nova foto</label>
-        <input type="file" name="foto" class="form-control" accept=".jpg,.jpeg,.png,.gif" />
-        <span class="text-danger">@Html.ValidationMessage("foto")</span>
-        <div class="form-text">JPG, PNG ou GIF (máx. 2MB).</div>
-    </div>
+            <!-- Nascimento -->
+            <div class="mb-3">
+                <label asp-for="Nascimento" class="form-label">Nascimento</label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-calendar-alt"></i>
+                    </span>
+                    <input asp-for="Nascimento" type="date" class="form-control" />
+                </div>
+                <span asp-validation-for="Nascimento" class="text-danger"></span>
+            </div>
 
-    <button class="btn btn-primary">Salvar</button>
-    <a class="btn btn-secondary"
-       asp-area="Discente" asp-controller="Academico" asp-action="Index">Voltar</a>
-</form>
+            <!-- Foto atual -->
+            <div class="mb-3">
+                <label class="form-label d-block">Foto atual</label>
+
+                @if (Model.Foto is not null)
+                {
+                    <img class="img-thumbnail mb-2"
+                         style="max-height:160px;object-fit:cover"
+                         src="@Url.Action("Foto", "Academico", new { area = "Discente", id = Model.AcademicoID })" />
+
+                    <div class="d-flex gap-2">
+                        <a class="btn btn-sm btn-outline-secondary"
+                           asp-area="Discente" asp-controller="Academico"
+                           asp-action="DownloadFoto" asp-route-id="@Model.AcademicoID">
+                            Download
+                        </a>
+                    </div>
+
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="checkbox"
+                               id="chkRemoverFoto" name="chkRemoverFoto" value="Sim" />
+                        <label class="form-check-label" for="chkRemoverFoto">
+                            Remover Foto
+                        </label>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-muted">Sem foto cadastrada.</div>
+                }
+            </div>
+
+            <!-- Upload de nova foto -->
+            <div class="mb-3">
+                <label class="form-label">Enviar nova foto</label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-image"></i>
+                    </span>
+                    <input type="file" name="foto" class="form-control" accept=".jpg,.jpeg,.png,.gif" />
+                </div>
+                <span class="text-danger">@Html.ValidationMessage("foto")</span>
+                <div class="form-text">JPG, PNG ou GIF (máx. 2MB).</div>
+            </div>
+        </div>
+
+        <div class="card-footer d-flex justify-content-end gap-2">
+            <a class="btn btn-outline-secondary"
+               asp-area="Discente" asp-controller="Academico" asp-action="Index">
+                Voltar
+            </a>
+            <button type="submit" class="btn btn-primary">
+                Salvar
+            </button>
+        </div>
+    </form>
+</div>
 
 @section ScriptPage {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @await Html.PartialAsync("_ValidationScriptsPartial")
 }

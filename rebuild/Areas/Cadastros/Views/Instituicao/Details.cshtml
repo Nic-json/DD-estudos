@@ -1,81 +1,144 @@
 ﻿@model Modelo.Cadastros.Instituicao
-
 @{
     Layout = "_LayoutIES";
+    ViewData["Title"] = "Detalhes da instituição";
 }
 
 @section Styles {
     <environment include="Development">
+        <link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" />
         <link rel="stylesheet" href="~/lib/datatables/css/jquery.dataTables.min.css" />
-        <link rel="stylesheet" href="~/lib/font-awesome/css/all.css" />
     </environment>
     <environment exclude="Development">
         <link rel="stylesheet"
-              href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css"
-              asp-fallback-href="~/lib/datatables/css/jquery.dataTables.min.css"
-              asp-fallback-test-class="sr-only"
-              asp-fallback-test-property="position"
-              asp-fallback-test-value="absolute" />
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+              asp-fallback-href="~/lib/font-awesome/css/all.min.css"
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
         <link rel="stylesheet"
-              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/font-awesome.min.css"
-              asp-fallback-href="~/lib/font-awesome/css/all.css"
-              asp-fallback-test-class="sr-only"
-              asp-fallback-test-property="position"
-              asp-fallback-test-value="absolute" />
+              href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"
+              asp-fallback-href="~/lib/datatables/css/jquery.dataTables.min.css"
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
     </environment>
+
+    <style>
+        /* Mantém quinas arredondadas do card e evita “vazamento” do conteúdo */
+        .card.rounded-3.overflow-hidden {
+            border-radius: .75rem;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,.08);
+        }
+
+        /* Respiro extra entre o título e os botões */
+        .card-header .header-left {
+            gap: .5rem;
+        }
+
+        .card-header .header-actions .btn + .btn {
+            margin-left: .5rem;
+        }
+
+        .card-header {
+            padding-top: .9rem;
+            padding-bottom: .9rem;
+        }
+
+        /* Tabela sem grudar nas bordas e com topo mais “leve” */
+        .table {
+            margin-bottom: 0;
+        }
+
+            .table thead th {
+                background: #f8f9fa;
+                border-bottom: 0;
+            }
+
+            .table tbody tr:last-child td {
+                border-bottom: 0;
+            }
+
+        /* Ajustes do DataTables para harmonizar com o card */
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_info {
+            padding: .5rem 0;
+        }
+
+        .dataTables_wrapper .dataTables_paginate {
+            padding: .5rem 0 .75rem;
+        }
+
+        /* Separador visual entre o card de dados e a tabela */
+        .section-divider {
+            border-top: 1px solid rgba(0,0,0,.06);
+            margin: 1rem 0 1.25rem;
+        }
+    </style>
 }
 
-<div class="card">
-    <div class="card-header text-white bg-secondary text-center h4">
-        Exibindo uma instituição existente
+<div class="card shadow-sm rounded-3 overflow-hidden">
+    <div class="card-header bg-primary text-white d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center header-left">
+            <i class="fas fa-university"></i>
+            <h5 class="mb-0">Detalhes da instituição</h5>
+        </div>
+
+        <div class="header-actions">
+            <a class="btn btn-light btn-sm"
+               asp-area="Cadastros" asp-controller="Instituicao" asp-action="Edit"
+               asp-route-id="@Model.InstituicaoID">
+                Editar
+            </a>
+            <a class="btn btn-outline-light btn-sm"
+               asp-area="Cadastros" asp-controller="Instituicao" asp-action="Index">
+                Voltar
+            </a>
+        </div>
     </div>
 
     <div class="card-body">
+        @* Cartão principal com os campos (usa seu partial com ícones) *@
+        <partial name="~/Views/Shared/_PartialDetailsContentCard.cshtml" model="Model" />
 
-        @* Cartão principal com os dados da instituição *@
-        @{
-            await Html.RenderPartialAsync("_PartialDetailsContentCard.cshtml", Model);
-        }
+        <div class="section-divider"></div>
 
-        <hr class="my-4" />
-
-        <h5 class="mb-3">Departamentos desta instituição</h5>
+        <div class="d-flex align-items-center mb-3">
+            <i class="fas fa-sitemap mr-2 text-muted"></i>
+            <h6 class="mb-0">Departamentos desta instituição</h6>
+        </div>
 
         @if (Model.Departamento != null && Model.Departamento.Any())
         {
-            <table id="tabela_departamentos" class="display table table-striped table-sm">
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th class="text-right">Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var d in Model.Departamento.OrderBy(x => x.Nome))
-                    {
+            <div class="table-responsive">
+                <table id="tabela_departamentos" class="table table-hover table-sm w-100">
+                    <thead class="thead-light">
                         <tr>
-                            <td>@d.Nome</td>
-                            <td class="text-right">
-                                <a class="btn btn-link btn-sm"
-                                   asp-area="Cadastros"
-                                   asp-controller="Departamento"
-                                   asp-action="Details"
-                                   asp-route-id="@d.DepartamentoID">
-                                    Detalhes
-                                </a>
-                                |
-                                <a class="btn btn-link btn-sm"
-                                   asp-area="Cadastros"
-                                   asp-controller="Departamento"
-                                   asp-action="Edit"
-                                   asp-route-id="@d.DepartamentoID">
-                                    Editar
-                                </a>
-                            </td>
+                            <th>Nome</th>
+                            <th class="text-right" style="width:180px;">Ações</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var d in Model.Departamento.OrderBy(x => x.Nome))
+                        {
+                            <tr>
+                                <td>@d.Nome</td>
+                                <td class="text-right">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a class="btn btn-outline-secondary"
+                                           asp-area="Cadastros" asp-controller="Departamento" asp-action="Details"
+                                           asp-route-id="@d.DepartamentoID">
+                                            <i class="fas fa-eye mr-1"></i> Detalhes
+                                        </a>
+                                        <a class="btn btn-outline-primary"
+                                           asp-area="Cadastros" asp-controller="Departamento" asp-action="Edit"
+                                           asp-route-id="@d.DepartamentoID">
+                                            <i class="fas fa-edit mr-1"></i> Editar
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         }
         else
         {
@@ -83,24 +146,22 @@
                 Nenhum departamento cadastrado para esta instituição.
             </div>
         }
-
     </div>
 
-    <div class="card-footer bg-info text-center text-white">
-        <a asp-action="Edit" asp-route-id="@Model.InstituicaoID" class="btn btn-warning">Alterar</a>
-        <a asp-action="Index" class="btn btn-light">Retornar à listagem de instituições</a>
+    <div class="card-footer bg-light text-muted text-center">
+        Consulte as informações e utilize os botões de ação para editar ou voltar.
     </div>
 </div>
 
 @section ScriptPage {
     <environment include="Development">
-        <script src="~/lib/jquery/jquery.slim.min.js"></script>
+        <script src="~/lib/jquery/jquery.min.js"></script>
         <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
     </environment>
     <environment exclude="Development">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"
-                asp-fallback-src="~/lib/jquery/jquery.slim.min.js"></script>
-        <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+                asp-fallback-src="~/lib/jquery/jquery.min.js"></script>
+        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"
                 asp-fallback-src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
     </environment>
 
@@ -110,7 +171,10 @@
                 paging: true,
                 searching: false,
                 info: false,
-                order: [[0, 'asc']]
+                order: [[0, 'asc']],
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'
+                }
             });
         });
     </script>

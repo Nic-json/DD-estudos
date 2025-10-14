@@ -1,47 +1,49 @@
 ﻿@model Modelo.Cadastros.Departamento
-
 @{
     Layout = "_LayoutIES";
+    ViewData["Title"] = "Excluir departamento";
 }
 
-@section Styles {
-    <environment include="Development">
-        <link rel="stylesheet" href="~/lib/font-awesome/css/all.css" />
-    </environment>
-    <environment exclude="Development">
-        <link rel="stylesheet"
-              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/font-awesome.min.css"
-              asp-fallback-href="~/lib/font-awesome/css/all.css"
-              asp-fallback-test-class="sr-only"
-              asp-fallback-test-property="position"
-              asp-fallback-test-value="absolute" />
-    </environment>
-}
-
-<div class="card">
-    <div class="card-header text-white bg-secondary text-center h4">
-        Remover departamento
+<div class="card shadow-sm">
+    <div class="card-header bg-danger text-white d-flex align-items-center">
+        <h5 class="mb-0">Excluir departamento</h5>
     </div>
 
     <div class="card-body">
-        <p class="text-danger mb-3">
-            Tem certeza que deseja excluir este departamento?
-        </p>
+        <div class="alert alert-warning" role="alert">
+            Tem certeza de que deseja excluir este registro? Esta ação é <strong>irreversível</strong>.
+        </div>
 
-        <!-- Card de detalhes do Departamento -->
-        <partial name="_PartialDetailsContentCard.cshtml" model="Model" />
+        <dl class="row mb-0">
+            <dt class="col-sm-3">ID</dt>
+            <dd class="col-sm-9">@Model.DepartamentoID</dd>
 
-        @* (Opcional) também mostrar a Instituição do departamento:
-           <partial name="~/Views/Instituicao/_PartialDetailsContentCard.cshtml" model="Model.Instituicao" />
-        *@
+            <dt class="col-sm-3">Nome</dt>
+            <dd class="col-sm-9">@Model.Nome</dd>
+
+            <dt class="col-sm-3">Instituição</dt>
+            <dd class="col-sm-9">@Model.Instituicao?.Nome</dd>
+        </dl>
     </div>
 
-    <div class="card-footer bg-info text-center text-white">
-        <form asp-action="Delete" asp-route-id="@Model.DepartamentoID" method="post" class="d-inline">
-            @* O Form Tag Helper injeta o antiforgery token automaticamente *@
+    <div class="card-footer d-flex justify-content-end">
+        <a class="btn btn-outline-secondary mr-2"
+           asp-area="Cadastros" asp-controller="Departamento" asp-action="Index">
+            Cancelar
+        </a>
+
+        <form asp-area="Cadastros"
+              asp-controller="Departamento"
+              asp-action="Delete"
+              asp-route-id="@Model.DepartamentoID"
+              method="post"
+              class="m-0">
+            @Html.AntiForgeryToken()
+
+            <!-- Caso seu POST receba o modelo, mantenha também o hidden: -->
             <input type="hidden" asp-for="DepartamentoID" />
-            <button type="submit" class="btn btn-danger">Remover</button>
+
+            <button type="submit" class="btn btn-danger">Excluir</button>
         </form>
-        <a asp-action="Index" class="btn btn-light ms-2">Cancelar</a>
     </div>
 </div>

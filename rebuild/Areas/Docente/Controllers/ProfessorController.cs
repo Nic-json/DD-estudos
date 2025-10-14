@@ -1,20 +1,20 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
-
 using Modelo.Cadastros;
 using Modelo.Docente;
-
+using Newtonsoft.Json;
+using rebuild.Areas.Docente.Models;
 using rebuild.Data;
 using rebuild.Data.DAL.Cadastros;
 using rebuild.Data.DAL.Docente;
-using rebuild.Areas.Docente.Models;
 
 namespace rebuild.Areas.Docente.Controllers
 {
     [Area("Docente")]
+    [Authorize]
     public class ProfessorController : Controller
     {
         private readonly IESContext _context;
@@ -181,6 +181,44 @@ namespace rebuild.Areas.Docente.Controllers
 
             if (prof is null) return NotFound();
             return View(prof);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(long id)
+        {
+            var professor = await _professorDAL.ObterProfessorPorIdAsync(id);
+            if (professor is null) return NotFound();
+
+            return View(professor);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(long id, [Bind("ProfessorID,Nome")] Professor professor)
+        {
+            if (id != professor.ProfessorID) return NotFound();
+
+            if (!ModelState.IsValid)
+                return View(professor);
+
+            try
+            {
+                await _professorDAL.GravarProfessorAsync(professor); // PK != 0 => Update
+                TempData["Message"] = "Professor atualizado com sucesso.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                // se alguém removeu enquanto você editava
+                var existente = await _professorDAL.ObterProfessorPorIdAsync(id);
+                if (existente is null) return NotFound();
+                throw;
+            }
+            catch (DbUpdateException)
+            {
+                ModelState.AddModelError("", "Não foi possível salvar as alterações.");
+                return View(professor);
+            }
         }
     }
 }

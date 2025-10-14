@@ -1,97 +1,144 @@
 ﻿@model rebuild.Areas.Docente.Models.AdicionarProfessorViewModel
 @{
     Layout = "_LayoutIES";
+    ViewData["Title"] = "Vincular professor a curso";
 }
 
-<form asp-area="Docente" asp-controller="Professor" asp-action="AdicionarProfessor" method="post" autocomplete="off">
-    @Html.AntiForgeryToken()
-
-    <div class="form-group">
-        <label asp-for="InstituicaoID"></label>
-        <select asp-for="InstituicaoID"
-                id="InstituicaoID"
-                class="form-control"
-                asp-items="@(new SelectList(ViewBag.Instituicoes ?? new List<Modelo.Cadastros.Instituicao>(),
-                                                    "InstituicaoID", "Nome"))">
-            <option value="">Selecione a Instituição</option>
-        </select>
-
-        <!-- DEPARTAMENTO (note o id e o data-url) -->
-        <select asp-for="DepartamentoID"
-                id="DepartamentoID"
-                class="form-control"
-                asp-items="@(new SelectList(ViewBag.Departamentos ?? new List<Modelo.Cadastros.Departamento>(),
-                                                    "DepartamentoID", "Nome"))"
-                data-url="@Url.Action("ObterDepartamentosPorInstituicao", "Professor", new { area = "Docente" })">
-            <option value="">Selecione o Departamento</option>
-        </select>
-
-        <!-- CURSO -->
-        <select asp-for="CursoID"
-                id="CursoID"
-                class="form-control"
-                asp-items="@(new SelectList(ViewBag.Cursos ?? new List<Modelo.Cadastros.Curso>(),
-                                                    "CursoID", "Nome"))"
-                data-url="@Url.Action("ObterCursosPorDepartamento", "Professor", new { area = "Docente" })">
-            <option value="">Selecione o Curso</option>
-        </select>
-
-        <!-- PROFESSOR -->
-        <select asp-for="ProfessorID"
-                id="ProfessorID"
-                class="form-control"
-                asp-items="@(new SelectList(ViewBag.Professores ?? new List<Modelo.Docente.Professor>(),
-                                                    "ProfessorID", "Nome"))"
-                data-url="@Url.Action("ObterProfessoresForaDoCurso", "Professor", new { area = "Docente" })">
-            <option value="">Selecione o Professor</option>
-        </select>
+<div class="card shadow-sm">
+    <div class="card-header bg-secondary text-white text-center h5">
+        Vincular Professor a Curso
     </div>
 
-    <button class="btn btn-primary">Registrar Professor</button>
-</form>
+    <form asp-area="Docente" asp-controller="Professor" asp-action="AdicionarProfessor" method="post" autocomplete="off">
+        @Html.AntiForgeryToken()
+
+        <div class="card-body">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <!-- INSTITUIÇÃO -->
+            <div class="mb-3">
+                <label asp-for="InstituicaoID" class="form-label">Instituição</label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-university"></i>
+                    </span>
+                    <select asp-for="InstituicaoID"
+                            id="InstituicaoID"
+                            class="form-control"
+                            asp-items="@(new SelectList(ViewBag.Instituicoes ?? new List<Modelo.Cadastros.Instituicao>(), "InstituicaoID", "Nome"))">
+                        <option value="">Selecione a Instituição</option>
+                    </select>
+                </div>
+                <span asp-validation-for="InstituicaoID" class="text-danger"></span>
+            </div>
+
+            <!-- DEPARTAMENTO -->
+            <div class="mb-3">
+                <label asp-for="DepartamentoID" class="form-label">Departamento</label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-sitemap"></i>
+                    </span>
+                    <select asp-for="DepartamentoID"
+                            id="DepartamentoID"
+                            class="form-control"
+                            asp-items="@(new SelectList(ViewBag.Departamentos ?? new List<Modelo.Cadastros.Departamento>(), "DepartamentoID", "Nome"))"
+                            data-url="@Url.Action("ObterDepartamentosPorInstituicao", "Professor", new { area = "Docente" })">
+                        <option value="">Selecione o Departamento</option>
+                    </select>
+                </div>
+                <span asp-validation-for="DepartamentoID" class="text-danger"></span>
+            </div>
+
+            <!-- CURSO -->
+            <div class="mb-3">
+                <label asp-for="CursoID" class="form-label">Curso</label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-book-open"></i>
+                    </span>
+                    <select asp-for="CursoID"
+                            id="CursoID"
+                            class="form-control"
+                            asp-items="@(new SelectList(ViewBag.Cursos ?? new List<Modelo.Cadastros.Curso>(), "CursoID", "Nome"))"
+                            data-url="@Url.Action("ObterCursosPorDepartamento", "Professor", new { area = "Docente" })">
+                        <option value="">Selecione o Curso</option>
+                    </select>
+                </div>
+                <span asp-validation-for="CursoID" class="text-danger"></span>
+            </div>
+
+            <!-- PROFESSOR -->
+            <div class="mb-3">
+                <label asp-for="ProfessorID" class="form-label">Professor</label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-user-tie"></i>
+                    </span>
+                    <select asp-for="ProfessorID"
+                            id="ProfessorID"
+                            class="form-control"
+                            asp-items="@(new SelectList(ViewBag.Professores ?? new List<Modelo.Docente.Professor>(), "ProfessorID", "Nome"))"
+                            data-url="@Url.Action("ObterProfessoresForaDoCurso", "Professor", new { area = "Docente" })">
+                        <option value="">Selecione o Professor</option>
+                    </select>
+                </div>
+                <span asp-validation-for="ProfessorID" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="card-footer d-flex justify-content-end gap-2">
+            <a class="btn btn-outline-secondary"
+               asp-area="Docente" asp-controller="Professor" asp-action="Index">
+                Voltar para Professores
+            </a>
+            <button type="submit" class="btn btn-primary">
+                Registrar Professor
+            </button>
+        </div>
+    </form>
+</div>
 
 @section ScriptPage {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @await Html.PartialAsync("_ValidationScriptsPartial")
 
-<script>
-    function fill($s, items, placeholder){
-      $s.empty().append(`<option value="">${placeholder}</option>`);
-      (items||[]).forEach(i => $s.append(`<option value="${i.value}">${i.text}</option>`));
-    }
-    function load(url, key, $target, placeholder){
-      if(!key){ fill($target, [], placeholder); return; }
-      $.getJSON(url, { actionID: key })
-       .done(d => fill($target, d, placeholder))
-       .fail(()=> alert('Erro carregando dados.'));
-    }
+    <script>
+        function fill($s, items, placeholder) {
+            $s.empty().append(`<option value="">${placeholder}</option>`);
+            (items || []).forEach(i => $s.append(`<option value="${i.value}">${i.text}</option>`));
+        }
+        function load(url, key, $target, placeholder) {
+            if (!key) { fill($target, [], placeholder); return; }
+            $.getJSON(url, { actionID: key })
+                .done(d => fill($target, d, placeholder))
+                .fail(() => alert('Erro carregando dados.'));
+        }
 
-    // quando trocar a instituição → carrega departamentos
-    $(document).on("change","#InstituicaoID", function(){
-      const instId = $(this).val();
-      const $dep = $("#DepartamentoID");
-      const url = $dep.data("url");
-      load(url, instId, $dep, "Selecione o Departamento");
-      fill($("#CursoID"), [], "Selecione o Curso");
-      fill($("#ProfessorID"), [], "Selecione o Professor");
-    });
+        // Inst -> Departamentos
+        $(document).on("change", "#InstituicaoID", function () {
+            const instId = $(this).val();
+            const $dep = $("#DepartamentoID");
+            const url = $dep.data("url");
+            load(url, instId, $dep, "Selecione o Departamento");
+            fill($("#CursoID"), [], "Selecione o Curso");
+            fill($("#ProfessorID"), [], "Selecione o Professor");
+        });
 
-    // quando trocar o departamento → carrega cursos
-    $(document).on("change","#DepartamentoID", function(){
-      const depId = $(this).val();
-      const $curso = $("#CursoID");
-      const url = $curso.data("url");
-      load(url, depId, $curso, "Selecione o Curso");
-      fill($("#ProfessorID"), [], "Selecione o Professor");
-    });
+        // Dep -> Cursos
+        $(document).on("change", "#DepartamentoID", function () {
+            const depId = $(this).val();
+            const $curso = $("#CursoID");
+            const url = $curso.data("url");
+            load(url, depId, $curso, "Selecione o Curso");
+            fill($("#ProfessorID"), [], "Selecione o Professor");
+        });
 
-    // quando trocar o curso → carrega professores
-    $(document).on("change","#CursoID", function(){
-      const cursoId = $(this).val();
-      const $prof = $("#ProfessorID");
-      const url = $prof.data("url");
-      load(url, cursoId, $prof, "Selecione o Professor");
-    });
-</script>
+        // Curso -> Professores
+        $(document).on("change", "#CursoID", function () {
+            const cursoId = $(this).val();
+            const $prof = $("#ProfessorID");
+            const url = $prof.data("url");
+            load(url, cursoId, $prof, "Selecione o Professor");
+        });
+    </script>
 }

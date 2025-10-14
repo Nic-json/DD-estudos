@@ -1,6 +1,7 @@
 ﻿@model IEnumerable<Modelo.Cadastros.Instituicao>
 @{
     Layout = "_LayoutIES";
+    ViewData["Title"] = "Instituições Registradas";
 }
 
 @section Styles {
@@ -8,7 +9,8 @@
         <link rel="stylesheet" href="~/lib/datatables/css/jquery.dataTables.min.css" />
     </environment>
     <environment exclude="Development">
-        <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css"
+        <link rel="stylesheet"
+              href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"
               asp-fallback-href="~/lib/datatables/css/jquery.dataTables.min.css"
               asp-fallback-test-class="sr-only"
               asp-fallback-test-property="position"
@@ -21,19 +23,24 @@
     <div class="alert alert-success" role="alert">@msg</div>
 }
 
-<div class="card card-block">
-    <div class="card-header text-white bg-primary text-center h1">
-        Instituições Registradas
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Instituições Registradas</h5>
+
+        <div class="d-flex align-items-center">
+            <input id="dt-search" class="form-control form-control-sm me-2" style="min-width:220px"
+                   placeholder="Pesquisar..." />
+        </div>
     </div>
 
     <div class="card-body">
-        <table id="tabela_instituicoes" class="display">
-            <thead>
+        <table id="tabela_instituicoes" class="table table-hover align-middle w-100">
+            <thead class="table-light">
                 <tr>
-                    <th>Id</th>
+                    <th style="width:100px;">Id</th>
                     <th>Nome</th>
                     <th>Endereço</th>
-                    <th></th>
+                    <th style="width:220px;">Ações</th>
                 </tr>
             </thead>
             <tbody>
@@ -44,16 +51,17 @@
                         <td>@item.Nome</td>
                         <td>@item.Endereco</td>
                         <td>
-                            <!-- Se suas actions recebem (long id): -->
-                            <a asp-area="Cadastros" asp-controller="Instituicao" asp-action="Edit" asp-route-id="@item.InstituicaoID">Editar</a> |
-                            <a asp-area="Cadastros" asp-controller="Instituicao" asp-action="Details" asp-route-id="@item.InstituicaoID">Detalhes</a> |
-                            <a asp-area="Cadastros" asp-controller="Instituicao" asp-action="Delete" asp-route-id="@item.InstituicaoID">Excluir</a>
-
-                            @* Se suas actions recebem (long InstituicaoID), troque para:
-                        <a asp-area="Cadastros" asp-controller="Instituicao" asp-action="Edit"    asp-route-InstituicaoID="@item.InstituicaoID">Editar</a> |
-                        <a asp-area="Cadastros" asp-controller="Instituicao" asp-action="Details" asp-route-InstituicaoID="@item.InstituicaoID">Detalhes</a> |
-                        <a asp-area="Cadastros" asp-controller="Instituicao" asp-action="Delete"  asp-route-InstituicaoID="@item.InstituicaoID">Excluir</a>
-                        *@
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a asp-area="Cadastros" asp-controller="Instituicao" asp-action="Edit"
+                                   asp-route-id="@item.InstituicaoID"
+                                   class="btn btn-outline-primary">Editar</a>
+                                <a asp-area="Cadastros" asp-controller="Instituicao" asp-action="Details"
+                                   asp-route-id="@item.InstituicaoID"
+                                   class="btn btn-outline-secondary">Detalhes</a>
+                                <a asp-area="Cadastros" asp-controller="Instituicao" asp-action="Delete"
+                                   asp-route-id="@item.InstituicaoID"
+                                   class="btn btn-outline-danger">Excluir</a>
+                            </div>
                         </td>
                     </tr>
                 }
@@ -61,11 +69,9 @@
         </table>
     </div>
 
-    <div class="card-footer bg-success text-center">
-        <a class="btn btn-success"
-           asp-area="Cadastros" asp-controller="Instituicao" asp-action="Create">
-            Criar uma nova instituição
-        </a>
+    <div class="card-footer bg-success bg-gradient text-center">
+        <a asp-area="Cadastros" asp-controller="Instituicao" asp-action="Create"
+           class="btn btn-light">Criar uma nova instituição</a>
     </div>
 </div>
 
@@ -74,12 +80,25 @@
         <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
     </environment>
     <environment exclude="Development">
-        <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"
+        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"
                 asp-fallback-src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
     </environment>
+
     <script>
         $(function () {
-            $('#tabela_instituicoes').DataTable();
+            const dt = $('#tabela_instituicoes').DataTable({
+                language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json' },
+                dom: "t<'d-flex justify-content-between align-items-center mt-2'i p>",
+                pageLength: 10,
+                searching: false,
+                responsive: true,
+                order: [[1, 'asc']] // ordena por Nome
+            });
+
+            // liga a busca do input no cabeçalho
+            $('#dt-search').on('input', function () {
+                dt.search(this.value).draw();
+            });
         });
     </script>
 }

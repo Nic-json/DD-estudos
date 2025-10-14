@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ using System.Threading.Tasks;
 namespace rebuild.Areas.Cadastros.Controllers
 {
     [Area("Cadastros")]
+    [Authorize]
     public class DepartamentoController : Controller
     {
         private readonly IESContext _context;

@@ -1,21 +1,23 @@
 ﻿
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Modelo.Discente;
 using rebuild.Data;
 using rebuild.Data.DAL.Discente;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using System.IO;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.FileProviders;
-using Microsoft.AspNetCore.Hosting;
 
 
 namespace rebuild.Areas.Discente.Controllers
 {
     [Area("Discente")]
+    [Authorize]
     public class AcademicoController : Controller
     {
         private readonly IESContext _context;

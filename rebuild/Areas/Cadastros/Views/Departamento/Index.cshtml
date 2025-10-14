@@ -25,9 +25,14 @@
     </div>
 }
 
-<div class="card">
-    <div class="card-header text-white bg-primary text-center h4">
-        Departamentos Registrados
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Departamentos Registrados</h5>
+
+        <div class="d-flex align-items-center">
+            <input id="dt-search" class="form-control form-control-sm me-2" style="min-width:220px"
+                   placeholder="Pesquisar..." />
+        </div>
     </div>
 
     <div class="card-body">
@@ -73,17 +78,16 @@
         <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"
                 asp-fallback-src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
     </environment>
-
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('#tabela_Departamento').DataTable({
-                "order": [[1, "asc"]],     // 0 = Nome, 1 = Instituição
-                "pageLength": 10,
-                "lengthChange": false,
-                "language": {
-                    "url": "//cdn.datatables.net/plug-ins/1.10.19/i18n/Portuguese-Brasil.json"
-                }
-            });
+    <script>
+        $(function () {
+          $('#tabela_Departamento').DataTable({
+            order: [[1, "asc"]],
+            pageLength: 10,
+            searching: false,
+            language: {
+              url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'
+            }
+          });
         });
     </script>
 }

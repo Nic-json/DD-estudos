@@ -1,4 +1,5 @@
 ﻿@model rebuild.Models.Infra.AcessarViewModel
+
 @{
 	Layout = "_LayoutIES";
 }
@@ -10,9 +11,7 @@
 	</div>
 	<div class="col-md-4">
 		<section>
-			<form asp-route-returnurl="@ViewData["ReturnUrl"]"
-				  method="post">
-				<div asp-validation-summary="All" class="text-danger"></div>
+			<form asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post" novalidate>
 				<div class="form-group">
 					<label asp-for="Email"></label>
 					<input asp-for="Email" class="form-control" />
@@ -52,5 +51,5 @@
 </div>
 @section ScriptPage {
 @await Html.PartialAsync("_ValidationScriptsPartial")
-
+	<script src="~/lib/jquery-validation/dist/localization/messages_pt_BR.min.js"></script>
 }

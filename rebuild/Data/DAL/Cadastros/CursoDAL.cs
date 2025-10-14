@@ -7,37 +7,68 @@ namespace rebuild.Data.DAL.Cadastros
 {
     public class CursoDAL
     {
-        private IESContext _context;
+        private IESContext _ctx;
         public CursoDAL(IESContext context)
         {
-            _context = context;
+            _ctx = context;
         }
         //	ObterCursosPorDepartamento	-	CursoDAL
         public IQueryable<Curso> ObterCursosPorDepartamento(long departamentoID)
-    => _context.Cursos
+    => _ctx.Cursos
                .Where(c => c.DepartamentoID == departamentoID)
                .OrderBy(c => c.Nome);
 
 
         public IQueryable<Professor> ObterProfessoresForaDoCurso(long cursoID)
         {
-            var curso = _context.Cursos.Where(c => c.CursoID == cursoID).Include(cp => cp.CursosProfessores).First();
+            var curso = _ctx.Cursos.Where(c => c.CursoID == cursoID).Include(cp => cp.CursosProfessores).First();
             var professoresDoCurso = curso.CursosProfessores.Select(cp =>cp.ProfessorID).ToArray();
-            var professoresForaDoCurso = _context.Professores.Where(p =>!professoresDoCurso.Contains(p.ProfessorID));
+            var professoresForaDoCurso = _ctx.Professores.Where(p =>!professoresDoCurso.Contains(p.ProfessorID));
             return professoresForaDoCurso;
         }
         public void RegistrarProfessor(long cursoID, long professorID)
         {
-            var curso = _context.Cursos.Where(c => c.CursoID == cursoID).
+            var curso = _ctx.Cursos.Where(c => c.CursoID == cursoID).
             Include(cp => cp.CursosProfessores).First();
-            var professor = _context.Professores.Find(professorID);
+            var professor = _ctx.Professores.Find(professorID);
             curso.CursosProfessores.Add(new CursoProfessor()
             {
                 Curso = curso,
                 Professor = professor
             });
-            _context.SaveChanges();
+            _ctx.SaveChanges();
         }
 
+        public async Task<Curso> GravarCursoAsync(Curso curso)
+        {
+            if (curso == null) throw new ArgumentNullException(nameof(curso));
+
+            if (curso.CursoID == 0)
+                _ctx.Cursos.Add(curso);
+            else
+                _ctx.Entry(curso).State = EntityState.Modified;
+
+            await _ctx.SaveChangesAsync();
+            return curso;
+        }
+
+        public async Task<Curso?> EliminarCursoPorIdAsync(long id)
+        {
+            var curso = await ObterCursoPorIdAsync(id);
+            if (curso != null)
+            {
+                _ctx.Cursos.Remove(curso);
+                await _ctx.SaveChangesAsync();
+            }
+            return curso;
+        }
+
+        public async Task<Curso?> ObterCursoPorIdAsync(long id)
+        {
+            return await _ctx.Cursos.FirstOrDefaultAsync(m => m.CursoID == id);
+        }
     }
+
+
 }
+

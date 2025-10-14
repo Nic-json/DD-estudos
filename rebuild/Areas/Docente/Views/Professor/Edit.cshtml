@@ -1,0 +1,55 @@
+﻿@model Modelo.Docente.Professor
+@{
+    Layout = "_LayoutIES";
+    ViewData["Title"] = "Editar Professor";
+}
+
+<div class="card shadow-sm">
+    <div class="card-header bg-secondary text-white text-center">
+        <h5 class="mb-0">Alterar professor</h5>
+    </div>
+
+    <div class="card-body">
+        <form asp-area="Docente"
+              asp-controller="Professor"
+              asp-action="Edit"
+              asp-route-id="@Model.ProfessorID"
+              method="post"
+              autocomplete="off">
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" asp-for="ProfessorID" />
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <!-- Nome -->
+            <div class="mb-3">
+                <label asp-for="Nome" class="form-label"></label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-user-tie"></i>
+                    </span>
+                    <input asp-for="Nome" class="form-control" />
+                </div>
+                <span asp-validation-for="Nome" class="text-danger"></span>
+            </div>
+
+            <div class="d-flex justify-content-end">
+                <a class="btn btn-outline-secondary mr-2"
+                   asp-area="Docente" asp-controller="Professor" asp-action="Index">
+                    Voltar
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    Salvar
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-footer bg-light text-muted text-center">
+        Atualize as informações e clique em <strong>Salvar</strong>.
+    </div>
+</div>
+
+@section ScriptPage {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

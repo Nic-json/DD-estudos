@@ -1,37 +1,69 @@
 ﻿@model Modelo.Cadastros.Instituicao
-
 @{
     Layout = "_LayoutIES";
-}
-<div class="card-block">
-    <div class="card-header	text-white	bg-secondary	text-center	h1">Alterando	uma	instituição	existente</div>
-    <div class="card-body">
-        <form asp-action="Edit">
-            <input type="hidden" asp-for="InstituicaoID" />
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Nome" class="control-label"></label>
-                <input asp-for="Nome" class="form-control" />
-                <span asp-validation-for="Nome" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Endereco" class="control-label"></label>
-                <input asp-for="Endereco" class="form-control" />
-                <span asp-validation-for="Endereco" class="text-danger"></span>
-            </div>
-            <div class="form-group	text-center	h3">
-                <input type="submit" value="Atualizar	Instituição" class="btn	btn-primary" />
-                <a asp-action="Index" class="btn	btn-warning">Retornar	à	listagem	de	instituições</a>
-            </div>
-        </form>
-    </div>
-    <div class="card-footer	bg-info	text-center	text-white">
-        Informe	os	dados	acima	e/ou	clique	em	um	dos	botões	de	ação
-    </div>
-</div>
-@section ScriptPage {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    ViewData["Title"] = "Editar instituição";
 }
 
+@section Styles {
+    <!-- Use somente se seu layout ainda não carrega o Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+}
+
+<div class="card shadow-sm">
+    <div class="card-header bg-secondary text-white text-center h5">
+        Alterando uma instituição existente
+    </div>
+
+    <form asp-area="Cadastros"
+          asp-controller="Instituicao"
+          asp-action="Edit"
+          method="post"
+          autocomplete="off">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="InstituicaoID" />
+
+        <div class="card-body">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <!-- Nome -->
+            <div class="mb-3">
+                <label asp-for="Nome" class="form-label">Nome</label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-university"></i>
+                    </span>
+                    <input asp-for="Nome" class="form-control" />
+                </div>
+                <span asp-validation-for="Nome" class="text-danger"></span>
+            </div>
+
+            <!-- Endereço -->
+            <div class="mb-1">
+                <label asp-for="Endereco" class="form-label">Endereço</label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </span>
+                    <input asp-for="Endereco" class="form-control" />
+                </div>
+                <span asp-validation-for="Endereco" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="card-footer d-flex justify-content-end gap-2">
+            <a class="btn btn-outline-secondary"
+               asp-area="Cadastros" asp-controller="Instituicao" asp-action="Index">
+                Voltar
+            </a>
+            <button type="submit" class="btn btn-primary">
+                Salvar
+            </button>
+        </div>
+    </form>
+</div>
+
+@section ScriptPage {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

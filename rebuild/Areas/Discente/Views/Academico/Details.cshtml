@@ -1,97 +1,86 @@
 ﻿@model Modelo.Discente.Academico
 @{
     Layout = "_LayoutIES";
-    ViewData["Title"] = "Exibir Acadêmico";
+    ViewData["Title"] = "Detalhes do acadêmico";
 }
 
 @section Styles {
     <environment include="Development">
-        <link rel="stylesheet" href="~/lib/font-awesome/css/fontawesome.min.css" />
+        <link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" />
     </environment>
     <environment exclude="Development">
         <link rel="stylesheet"
-              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-              asp-fallback-href="~/lib/font-awesome/css/font-awesome.min.css"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+              asp-fallback-href="~/lib/font-awesome/css/all.min.css"
               asp-fallback-test-class="sr-only"
               asp-fallback-test-property="position"
               asp-fallback-test-value="absolute" />
     </environment>
 }
 
-<div class="card-block">
-    <div class="card-header text-white bg-secondary text-center h1">
-        Exibindo um acadêmico existente
+<div class="card shadow-sm">
+
+    <!-- Cabeçalho -->
+    <div class="card-header bg-primary text-white d-flex align-items-center justify-content-between py-3">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-user-graduate mr-2"></i>
+            <h5 class="mb-0">Detalhes do acadêmico</h5>
+        </div>
+
+        <div class="btn-group btn-group-sm ml-4" role="group">
+            <a class="btn btn-light"
+               asp-area="Discente" asp-controller="Academico" asp-action="Edit"
+               asp-route-id="@Model.AcademicoID">
+                Editar
+            </a>
+            <a class="btn btn-outline-light"
+               asp-area="Discente" asp-controller="Academico" asp-action="Index">
+                Voltar
+            </a>
+        </div>
     </div>
 
+    <!-- Corpo -->
     <div class="card-body">
         <div class="row">
-            <div class="col-9">
-                <div class="form-group">
-                    <label asp-for="AcademicoID" class="control-label"></label><br />
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-key" aria-hidden="true"></i></span>
-                        </div>
-                        <input asp-for="AcademicoID" class="form-control" disabled />
-                    </div>
-
-                    <label asp-for="RegistroAcademico" class="control-label mt-3"></label><br />
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-address-card-o" aria-hidden="true"></i></span>
-                        </div>
-                        <input asp-for="RegistroAcademico" class="form-control" disabled />
-                    </div>
-
-                    <label asp-for="Nome" class="control-label mt-3"></label><br />
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-user-circle-o" aria-hidden="true"></i></span>
-                        </div>
-                        <input asp-for="Nome" class="form-control" disabled />
-                    </div>
-
-                    <label asp-for="Nascimento" class="control-label mt-3"></label><br />
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-calendar" aria-hidden="true"></i></span>
-                        </div>
-                        <input asp-for="Nascimento" class="form-control" disabled type="date" />
-                    </div>
-                </div>
+            <!-- Campos do acadêmico -->
+            <div class="col-lg-9">
+                @* Partial padronizado com ícones (RA, Nome, Nascimento etc.) *@
+                <partial name="~/Views/Shared/_PartialDetailsContentCard.cshtml" model="Model" />
             </div>
 
-            <div class="col-3 text-center">
-                @if (Model.Foto is not null)
-                {
-                    <img class="img-thumbnail mb-2"
-                         style="max-height:160px;object-fit:cover"
-                         src="@Url.Action("Foto", "Academico", new { area = "Discente", id = Model.AcademicoID })"
-                         alt="Foto do acadêmico" />
+            <!-- Foto do acadêmico -->
+            <div class="col-lg-3">
+                <div class="border rounded p-3 text-center">
+                    @if (Model.Foto is not null)
+                    {
+                        <img class="img-thumbnail mb-3"
+                             style="max-height:200px;object-fit:cover"
+                             src="@Url.Action("Foto", "Academico", new { area = "Discente", id = Model.AcademicoID })"
+                             alt="Foto do acadêmico" />
 
-                    <a class="btn btn-sm btn-outline-secondary"
-                       asp-area="Discente"
-                       asp-controller="Academico"
-                       asp-action="DownloadFoto"
-                       asp-route-id="@Model.AcademicoID">
-                        Download
-                    </a>
-                }
-                else
-                {
-                    <div class="text-muted">Sem foto cadastrada.</div>
-                }
+                        <div>
+                            <a class="btn btn-sm btn-outline-secondary"
+                               asp-area="Discente" asp-controller="Academico"
+                               asp-action="DownloadFoto" asp-route-id="@Model.AcademicoID">
+                                <i class="fas fa-download mr-1"></i> Download
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-muted">
+                            <i class="fas fa-user-circle fa-3x mb-2 d-block"></i>
+                            Sem foto cadastrada.
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="card-footer bg-info text-center text-white">
-        <a class="btn btn-warning"
-           asp-area="Discente" asp-controller="Academico"
-           asp-action="Edit" asp-route-id="@Model.AcademicoID">Alterar</a>
-        |
-        <a class="btn btn-warning"
-           asp-area="Discente" asp-controller="Academico"
-           asp-action="Index">Retornar à listagem de acadêmicos</a>
+    <!-- Rodapé -->
+    <div class="card-footer bg-light text-muted text-center">
+        Consulte as informações e utilize os botões de ação para editar ou voltar.
     </div>
 </div>

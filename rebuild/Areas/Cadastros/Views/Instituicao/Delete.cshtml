@@ -1,46 +1,45 @@
 ﻿@model Modelo.Cadastros.Instituicao
-
 @{
     Layout = "_LayoutIES";
-}
-@section Styles {
-    <environment include="Development">
-        <link rel="stylesheet" href="~/lib/font-awesome/css/all.css" />
-    </environment>
-    <environment exclude="Development">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/font-awesome.min.css"
-              asp-fallback-href="~/lib/font-awesome/css/all.css"
-              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
-    </environment>
-}
-<div class="card-block">
-    <div class="card-header	text-white	bg-secondary	text-center	h1">
-        Exibindo	uma	instituição	existente
-    </div>
-    <div class="card-body">
-        @{
-            await Html.RenderPartialAsync("_PartialDetailsContentCard.cshtml", Model);
-        }
-    </div>
-    <div class="card-footer	bg-info	text-center	text-white">
-        <form asp-area="Cadastros" asp-controller="Instituicao" asp-action="Delete" method="post">
-            @Html.AntiForgeryToken()
-            <input type="hidden" name="id" value="@Model.InstituicaoID" />
-            <button class="btn btn-danger">Excluir  Instituicao</button>
-            <a asp-action="Index" class="btn	btn-info">
-                Retornar	à
-                listagem	de	instituições
-            </a>
-        </form>
-        @if (TempData["Message"] is string msg)
-        {
-            <div class="alert alert-warning">@msg</div>
-        }
-    </div>
-</div>
-@section ScriptPage {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    ViewData["Title"] = "Excluir instituição";
 }
 
+<div class="card shadow-sm">
+    <div class="card-header bg-danger text-white d-flex align-items-center">
+        <h5 class="mb-0">Excluir instituição</h5>
+    </div>
+
+    <div class="card-body">
+        <div class="alert alert-warning" role="alert">
+            Tem certeza de que deseja excluir este registro? Esta ação é <strong>irreversível</strong>.
+        </div>
+
+        <dl class="row mb-0">
+            <dt class="col-sm-3">ID</dt>
+            <dd class="col-sm-9">@Model.InstituicaoID</dd>
+
+            <dt class="col-sm-3">Nome</dt>
+            <dd class="col-sm-9">@Model.Nome</dd>
+
+            <dt class="col-sm-3">Endereço</dt>
+            <dd class="col-sm-9">@Model.Endereco</dd>
+        </dl>
+    </div>
+
+    <div class="card-footer d-flex justify-content-end">
+        <a asp-area="Cadastros" asp-controller="Instituicao" asp-action="Index"
+           class="btn btn-outline-secondary mr-2">Cancelar</a>
+
+        <form asp-area="Cadastros" asp-controller="Instituicao" asp-action="Delete" method="post" class="m-0">
+            @Html.AntiForgeryToken()
+
+            <!-- Se o método POST Delete espera (long id): use "name=id" -->
+            @* <input type="hidden" name="id" value="@Model.InstituicaoID" /> *@
+
+            <!-- Se o método POST Delete recebe o modelo ou InstituicaoID: -->
+            <input type="hidden" asp-for="InstituicaoID" />
+
+            <button type="submit" class="btn btn-danger">Excluir</button>
+        </form>
+    </div>
+</div>
