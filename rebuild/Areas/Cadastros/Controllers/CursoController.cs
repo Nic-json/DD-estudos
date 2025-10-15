@@ -76,6 +76,44 @@ namespace rebuild.Areas.Cadastros.Controllers
             }).ToListAsync();
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Delete(long id)
+        {
+            var curso = await _ctx.Cursos
+                .Include(c => c.Departamento)
+                .Include(c => c.CursosProfessores)          // join
+                    .ThenInclude(cp => cp.Professor)
+                .FirstOrDefaultAsync(c => c.CursoID == id);
+
+            if (curso == null) return NotFound();
+
+            return View(curso);
+        }
+
+        // POST: Cadastros/Curso/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(long id)
+        {
+            var curso = await _ctx.Cursos
+                .Include(c => c.CursosProfessores)
+                .FirstOrDefaultAsync(c => c.CursoID == id);
+
+            if (curso == null) return NotFound();
+
+            // remove vínculos da tabela de junção (evita FK quebrada)
+            if (curso.CursosProfessores != null && curso.CursosProfessores.Any())
+            {
+                _ctx.CursosProfessores.RemoveRange(curso.CursosProfessores);
+            }
+
+            _ctx.Cursos.Remove(curso);
+            await _ctx.SaveChangesAsync();
+
+            TempData["Message"] = "Curso removido com sucesso.";
+            return RedirectToAction(nameof(Index));
+        }
+
 
     }
 }

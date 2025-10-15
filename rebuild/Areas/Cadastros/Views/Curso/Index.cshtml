@@ -28,35 +28,36 @@
         <h5 class="mb-0">Cursos Registrados</h5>
 
         <div class="d-flex align-items-center">
-            <input id="dt-search" class="form-control form-control-sm me-2" style="min-width:220px"
+            <input id="dt-search" class="form-control form-control-sm mr-2" style="min-width:220px"
                    placeholder="Pesquisar..." />
         </div>
     </div>
 
     <div class="card-body">
-        <table id="tabela_cursos" class="display" style="width:100%">
-            <thead>
+        <table id="tabela_cursos" class="table table-hover table-sm w-100">
+            <thead class="thead-light">
                 <tr>
-                    <th>Id</th>
+                    <th style="width:100px;">Id</th>
                     <th>Nome</th>
                     <th>Departamento</th>
-                    <th style="width: 180px;"></th>
+                    <th class="text-right" style="width:240px;">Ações</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var item in Model)
                 {
                     <tr>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Nome)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Departamento.Nome)
-                        </td>
-                        <td>
-                            <a asp-action="Edit" asp-route-id="@item.CursoID">Editar</a> |
-                            <a asp-action="Details" asp-route-id="@item.CursoID">Detalhes</a> |
-                            <a asp-action="Delete" asp-route-id="@item.CursoID" class="text-danger">Excluir</a>
+                        <td>@item.CursoID</td>
+                        <td>@item.Nome</td>
+                        <td>@item.Departamento?.Nome</td>
+                        <td class="text-right">
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a class="btn btn-outline-danger"
+                                   asp-area="Cadastros" asp-controller="Curso" asp-action="Delete"
+                                   asp-route-id="@item.CursoID">
+                                    Excluir
+                                </a>
+                            </div>
                         </td>
                     </tr>
                 }
@@ -64,9 +65,9 @@
         </table>
     </div>
 
-    <div class="card-footer bg-success text-center">
+    <div class="card-footer bg-success bg-gradient text-center">
         <a asp-area="Cadastros" asp-controller="Curso" asp-action="Create"
-           class="btn btn-light">Criar uma novo Curso</a>
+           class="btn btn-light">Criar um novo Curso</a>
     </div>
 </div>
 
@@ -81,13 +82,18 @@
 
     <script>
         $(function () {
-            $('#tabela_cursos').DataTable({
-                order: [[1, 'asc']],
+            const dt = $('#tabela_cursos').DataTable({
+                order: [[1, 'asc']],         // ordena por Nome
                 pageLength: 10,
-                searching: false,
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'
-                }
+                searching: true,             // usaremos o input custom
+                info: true,
+                dom: "t<'d-flex justify-content-between align-items-center mt-2'i p>",
+                language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json' }
+            });
+
+            // Busca pelo campo do header
+            $('#dt-search').on('input', function () {
+                dt.search(this.value).draw();
             });
         });
     </script>

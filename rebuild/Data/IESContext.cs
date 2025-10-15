@@ -18,6 +18,7 @@ namespace rebuild.Data
         public DbSet<Departamento> Departamento { get; set; }
         public DbSet<Instituicao> Instituicao { get; set; }
         public DbSet<Professor> Professores { get; set; }
+        public DbSet<CursoProfessor> CursosProfessores { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

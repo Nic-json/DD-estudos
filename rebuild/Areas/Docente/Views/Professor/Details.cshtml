@@ -1,7 +1,14 @@
 ﻿@model Modelo.Docente.Professor
+@using Modelo.Cadastros              @* <-- ajuste se o Curso/CursoProfessor estiverem noutro namespace *@
 @{
     Layout = "_LayoutIES";
     ViewData["Title"] = "Detalhes do Professor";
+    var cursos = Model.CursosProfessores?
+                   .Where(cp => cp.Curso != null)
+                   .Select(cp => cp.Curso!)      // ! porque já filtramos null
+                   .OrderBy(c => c.Nome)
+                ?? Enumerable.Empty<Curso>();
+
 }
 
 @section Styles {
@@ -20,7 +27,7 @@
 
 <div class="card shadow-sm">
 
-    <!-- Cabeçalho -->
+    <!-- HEADER: azul, com ícone e botões à direita com espaçamento -->
     <div class="card-header bg-primary text-white d-flex align-items-center justify-content-between py-3">
         <div class="d-flex align-items-center">
             <i class="fas fa-chalkboard-teacher mr-2"></i>
@@ -44,13 +51,13 @@
         </div>
     </div>
 
-    <!-- Corpo -->
+    <!-- BODY -->
     <div class="card-body">
 
-        <!-- Campos do professor (partial padronizado com ícones) -->
+        <!-- Campos do professor (usa o partial padronizado com ícones) -->
         <partial name="~/Views/Shared/_PartialDetailsContentCard.cshtml" model="Model" />
 
-        <!-- (Opcional) cursos vinculados -->
+        <!-- Se houver cursos vinculados, mostra a seção -->
         @if (Model.CursosProfessores != null && Model.CursosProfessores.Any())
         {
             <hr class="my-4" />
@@ -68,10 +75,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var c in (Model.CursosProfessores ?? Enumerable.Empty<CursoProfessor>())
-                                            .Where(cp => cp.Curso != null)
-                                            .Select(cp => cp.Curso)
-                                            .OrderBy(c => c.Nome))
+                        @foreach (var c in cursos)
                         {
                             <tr>
                                 <td>@c.Nome</td>
@@ -91,7 +95,6 @@
                                 </td>
                             </tr>
                         }
-
                         }
                     </tbody>
                 </table>
@@ -105,7 +108,7 @@
         }
     </div>
 
-    <!-- Rodapé -->
+    <!-- FOOTER -->
     <div class="card-footer bg-light text-muted text-center">
         Consulte as informações e utilize os botões de ação para editar, vincular a curso ou voltar.
     </div>

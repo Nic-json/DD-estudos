@@ -1,0 +1,102 @@
+﻿@model Modelo.Docente.Professor
+@{
+    Layout = "_LayoutIES";
+    ViewData["Title"] = "Remover Professor";
+}
+
+@section Styles {
+    <environment include="Development">
+        <link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" />
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+              asp-fallback-href="~/lib/font-awesome/css/all.min.css"
+              asp-fallback-test-class="sr-only"
+              asp-fallback-test-property="position"
+              asp-fallback-test-value="absolute" />
+    </environment>
+}
+
+<div class="card shadow-sm">
+
+    <!-- Cabeçalho (vermelho) -->
+    <div class="card-header bg-danger text-white d-flex align-items-center justify-content-between py-3">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-user-slash mr-2"></i>
+            <h5 class="mb-0">Remover professor</h5>
+        </div>
+
+        <div class="btn-group btn-group-sm ml-4" role="group">
+            <a class="btn btn-outline-light"
+               asp-area="Docente" asp-controller="Professor" asp-action="Index">
+                Voltar
+            </a>
+        </div>
+    </div>
+
+    <!-- Corpo -->
+    <div class="card-body">
+
+        <div class="alert alert-danger d-flex align-items-center" role="alert">
+            <i class="fas fa-exclamation-triangle mr-2"></i>
+            <div>
+                Tem certeza de que deseja <strong>excluir</strong> este professor?
+                <br />
+                <small class="text-white-50">Os vínculos com cursos serão removidos junto com o professor.</small>
+            </div>
+        </div>
+
+        <!-- Campos em modo leitura -->
+        <partial name="~/Views/Shared/_PartialDetailsContentCard.cshtml" model="Model" />
+
+        @if (Model.CursosProfessores != null && Model.CursosProfessores.Any(cp => cp.Curso != null))
+        {
+            <hr class="my-4" />
+            <div class="d-flex align-items-center mb-2">
+                <i class="fas fa-book-open mr-2 text-muted"></i>
+                <h6 class="mb-0">Cursos vinculados</h6>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Nome do curso</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var c in Model.CursosProfessores.Where(cp => cp.Curso != null)
+                                            .Select(cp => cp.Curso)
+                                            .OrderBy(c => c.Nome))
+                        {
+                            <tr>
+                                <td>@c.Nome</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+    <!-- Rodapé / Ações -->
+    <div class="card-footer d-flex justify-content-end">
+        <form class="d-inline"
+              asp-area="Docente"
+              asp-controller="Professor"
+              asp-action="Delete"
+              asp-route-id="@Model.ProfessorID"
+              method="post">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-danger">
+                <i class="fas fa-trash-alt mr-1"></i> Excluir
+            </button>
+        </form>
+
+        <a class="btn btn-outline-secondary ml-2"
+           asp-area="Docente" asp-controller="Professor" asp-action="Index">
+            Cancelar
+        </a>
+    </div>
+</div>

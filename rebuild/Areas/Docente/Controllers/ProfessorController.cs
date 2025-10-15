@@ -220,5 +220,40 @@ namespace rebuild.Areas.Docente.Controllers
                 return View(professor);
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Delete(long id)
+        {
+            var prof = await _context.Professores
+                .Include(p => p.CursosProfessores)
+                    .ThenInclude(cp => cp.Curso)
+                .FirstOrDefaultAsync(p => p.ProfessorID == id);
+
+            if (prof == null) return NotFound();
+            return View(prof);
+        }
+
+        // POST: Docente/Professor/Delete/5  (executa)
+        [HttpPost, ValidateAntiForgeryToken, ActionName("Delete")]
+        public async Task<IActionResult> DeleteConfirmed(long id)
+        {
+            var prof = await _context.Professores
+                .Include(p => p.CursosProfessores)
+                .FirstOrDefaultAsync(p => p.ProfessorID == id);
+
+            if (prof != null)
+            {
+                // remove vínculos da tabela de junção (evita FK quebrada)
+                if (prof.CursosProfessores?.Any() == true)
+                    _context.CursosProfessores.RemoveRange(prof.CursosProfessores);
+
+                _context.Professores.Remove(prof);
+                await _context.SaveChangesAsync();
+
+                TempData["Message"] = "Professor removido com sucesso.";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

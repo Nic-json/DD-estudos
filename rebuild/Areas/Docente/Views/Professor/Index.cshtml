@@ -43,29 +43,21 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var p in Model)
+                @foreach (var item in Model)
                 {
                     <tr>
-                        <td>@p.ProfessorID</td>
-                        <td>@p.Nome</td>
+                        <td>@item.Nome</td>
+                        <td>@item.ProfessorID</td> <!-- se quiser mostrar o ID -->
                         <td class="text-right">
-                            <a class="btn btn-outline-secondary btn-sm"
-                               asp-area="Docente" asp-controller="Professor" asp-action="AdicionarProfessor">
-                                Vincular a curso
-                            </a>
-
-                            <!-- trocado de Novo(Create) para Editar(Edit) -->
-                            <a class="btn btn-outline-primary btn-sm"
+                            <a class="btn btn-sm btn-outline-primary"
                                asp-area="Docente" asp-controller="Professor" asp-action="Edit"
-                               asp-route-id="@p.ProfessorID">
-                                Editar
-                            </a>
-
-                            <a class="btn btn-outline-primary btn-sm"
+                               asp-route-id="@item.ProfessorID">Editar</a>
+                            <a class="btn btn-sm btn-outline-info"
                                asp-area="Docente" asp-controller="Professor" asp-action="Details"
-                               asp-route-id="@p.ProfessorID">
-                                Detalhes
-                            </a>
+                               asp-route-id="@item.ProfessorID">Detalhes</a>
+                            <a class="btn btn-sm btn-outline-danger"
+                               asp-area="Docente" asp-controller="Professor" asp-action="Delete"
+                               asp-route-id="@item.ProfessorID">Excluir</a>
                         </td>
                     </tr>
                 }
