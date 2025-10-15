@@ -24,10 +24,7 @@
 
                 <div class="col-md-6">
                     <label asp-for="InstituicaoID" class="form-label"></label>
-                    <select asp-for="InstituicaoID"
-                            class="form-select"
-                            asp-items="@(new SelectList(ViewBag.Instituicao, "InstituicaoID", "Nome"))">
-                        <option value="">Selecione a instituição</option>
+                    <select asp-for="InstituicaoID"class="form-select"asp-items="@(new SelectList(ViewBag.Instituicao, "InstituicaoID", "Nome"))">
                     </select>
                     <span asp-validation-for="InstituicaoID" class="text-danger"></span>
                 </div>

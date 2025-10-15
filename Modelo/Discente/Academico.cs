@@ -12,7 +12,7 @@ namespace Modelo.Discente
 
         [DisplayName("RA")]
         [Required(ErrorMessage = "Informe o RA.")]
-        // Um único validador que garante exatamente 10 dígitos numéricos
+        [StringLength(10, ErrorMessage = "O RA não pode ter mais de 10 caracteres.")]
         [RegularExpression(@"^\d{10}$",
             ErrorMessage = "O RA deve conter exatamente 10 dígitos numéricos.")]
         public string RegistroAcademico { get; set; }
